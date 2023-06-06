@@ -1,8 +1,7 @@
 ---
 title: "Tutorial Web Scrapping dan Teks Mining " 
 author: "Muhammad I. Lubis (ilubis85@gmail.com)"
-output: 
-  html_document
+output: github_document
 always_allow_html: true
 ---
 
@@ -53,7 +52,8 @@ options(warn = -1)
 library(knitr)
 library(kableExtra)
 berita_htc %>% 
-  kbl() %>% 
+  kbl(caption = "Beberapa artikel terkait konflik mansia dan harimau (KMH) di Aceh",
+      digits = c(10, 25)) %>% 
   kable_styling()
 ```
 

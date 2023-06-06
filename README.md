@@ -1,9 +1,8 @@
+Tutorial Web Scrapping dan Teks Mining
+================
+Muhammad I. Lubis (<ilubis85@gmail.com>)
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-
-# Tutorial Web Scrapping dan Teks Mining
-
-oleh Muhammad I. Lubis, 2023
-
 <!-- badges: start -->
 <!-- badges: end -->
 
@@ -45,6 +44,9 @@ yang berisi informasi konflik di Provinsi Riau dikumpulkan seperti yang
 terlihat pada tabel berikut.
 
 <table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Beberapa artikel terkait konflik mansia dan harimau (KMH) di Aceh
+</caption>
 <thead>
 <tr>
 <th style="text-align:left;">
