@@ -1,0 +1,22 @@
+---
+title: "Tutorial webscraping"
+author: "Muhammad I. Lubis"
+date: "2023-06-06"
+output: html_document
+---
+# Tutorial Web Scrapping dan Teks Mining 
+oleh Muhammad I. Lubis, 2023
+
+## Apa itu web scrapping
+Berdasarkan halaman Wikipedia, Web scraping merujuk pada proses ekstraksi data dari websites secara otomatis. Web scraping dapat dilakukan dengan menuliskan beberapa baris *scripts* untuk mendapatkan dan menguraikan halaman HTML atau data terstruktur lainnya dari halaman web dan mengextrak informasi yang diinginkan. Web scraping memungkinkan pengguna untuk mengumpulkan data dari beberapa halaman web, mengubahnya ke dalam format yang lebih terstruktur, lalu melakukan analisis atau menggunakannya untuk berbagai tujuan.
+
+## Legalkah web scrapping
+Pertanyaan yang sering muncul di kepala pengguna web scraping adalah apakah kegiatan web scraping itu legal atau tidak. 
+
+## Bagaimana melakukan web scrapping
+
+## Kumpulkan beberapa artikel online untuk di scraping
+Konflik manusia dan harimau menunjukkan trend peningkatan beberapa tahun terakhir ini, khususnya di sekitar daerah yang tingkat perubahan tutupan hutannya cukup tinggi seperti di Provinsi Riau. Saat ini, data terkait sebaran lokasi konflik antara manusia dan harimau tidak tersedia secara umum, sementara informasi terkait ini sangat diperlukan untuk mitigasi dan pengendalian konflik. Salah satu sumber informasi publik yang dapat di akses hanya berasal dari artikel online. 
+
+Tutorial web scraping kali ini akan mencoba mengekstrak informasi konflik melalui media online. Beberapa websites yang berisi informasi konflik di Provinsi Riau dikumpulkan seperti yang terlihat pada tabel berikut.
+
