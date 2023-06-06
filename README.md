@@ -41,9 +41,11 @@ Salah satu sumber informasi publik terkait KMH dapat di akses melalui
 berita atau artikel online. Tutorial web scraping kali ini akan mencoba
 mengekstrak informasi konflik melalui media online. Beberapa websites
 yang berisi informasi konflik di Provinsi Riau dikumpulkan seperti yang
-terlihat pada tabel berikut.
+terlihat pada tabel berikut. misalnya klik website berikut:
 
-<table class="table" style="margin-left: auto; margin-right: auto;">
+“<https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all>”
+
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 Beberapa artikel terkait konflik mansia dan harimau (KMH) di Aceh
 </caption>
@@ -53,7 +55,7 @@ Beberapa artikel terkait konflik mansia dan harimau (KMH) di Aceh
 Website
 </th>
 <th style="text-align:left;">
-URL
+alamat_website
 </th>
 </tr>
 </thead>
@@ -63,7 +65,7 @@ URL
 TribunNews
 </td>
 <td style="text-align:left;">
-<https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all>
+aku/sudah/ngantuk
 </td>
 </tr>
 <tr>
@@ -71,7 +73,7 @@ TribunNews
 TribunNews
 </td>
 <td style="text-align:left;">
-<https://aceh.tribunnews.com/2020/10/05/harimau-berkeliaran-di-objek-wisata-kempra-dampak-tidak-adanya-kajian-lingkungan-spot-baru>
+aku sudah ngantuk
 </td>
 </tr>
 <tr>
@@ -79,7 +81,7 @@ TribunNews
 TribunNews
 </td>
 <td style="text-align:left;">
-<https://aceh.tribunnews.com/2020/03/11/warga-pastikan-harimau-sumatera-yang-kembali-meneror-mangsa-ternak?page=all>
+aku sudah ngantuk
 </td>
 </tr>
 <tr>
@@ -87,7 +89,7 @@ TribunNews
 KompasNews
 </td>
 <td style="text-align:left;">
-<https://regional.kompas.com/read/2018/11/15/16461841/masuk-ke-kampung-kawanan-harimau-sumatera-terkam-3-ekor-kerbau-warga?page=all>
+aku sudah ngantuk
 </td>
 </tr>
 <tr>
@@ -95,7 +97,7 @@ KompasNews
 KompasNews
 </td>
 <td style="text-align:left;">
-<https://regional.kompas.com/read/2019/12/07/14385741/ternyata-ini-penyebab-harimau-masuk-ke-permukiman-dan-mangsa-ternak-warga?page=all>
+aku sudah ngantuk
 </td>
 </tr>
 </tbody>

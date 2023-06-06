@@ -2,6 +2,7 @@
 title: "Tutorial Web Scrapping dan Teks Mining " 
 author: "Muhammad I. Lubis (ilubis85@gmail.com)"
 output: github_document
+link-citations: yes
 always_allow_html: true
 ---
 
@@ -33,18 +34,23 @@ Web scraping dapat dilakukan melalui dua tahap, mencari dan mengumpulkan alamat 
 Konflik manusia dan harimau (KMH) menunjukkan trend peningkatan beberapa tahun terakhir ini, khususnya di sekitar daerah yang memiliki tutupan hutan yang tinggi seperti di Provinsi Aceh. Saat ini, data terkait sebaran lokasi konflik antara manusia dan harimau tidak tersedia secara umum, sementara informasi terkait ini sangat diperlukan untuk mitigasi dan pengendalian konflik untuk meminimalisisr dampak negatif terhadap manusia dan satwa liar. 
 
 Salah satu sumber informasi publik terkait KMH dapat di akses melalui berita atau artikel online. Tutorial web scraping kali ini akan mencoba mengekstrak informasi konflik melalui media online. Beberapa websites yang berisi informasi konflik di Provinsi Riau dikumpulkan seperti yang terlihat pada tabel berikut.
+misalnya klik website berikut:
+
+"https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all"
 
 ```{r echo=FALSE}
 Website <- c("TribunNews", "TribunNews", "TribunNews", "KompasNews", "KompasNews")
 
-url <- c("https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all",
+tai <- c("aku/sudah/ngantuk", "aku sudah ngantuk", "aku sudah ngantuk", "aku sudah ngantuk", "aku sudah ngantuk")
+
+alamat_website <- c("https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all",
          "https://aceh.tribunnews.com/2020/10/05/harimau-berkeliaran-di-objek-wisata-kempra-dampak-tidak-adanya-kajian-lingkungan-spot-baru",
          "https://aceh.tribunnews.com/2020/03/11/warga-pastikan-harimau-sumatera-yang-kembali-meneror-mangsa-ternak?page=all",
          "https://regional.kompas.com/read/2018/11/15/16461841/masuk-ke-kampung-kawanan-harimau-sumatera-terkam-3-ekor-kerbau-warga?page=all",
          "https://regional.kompas.com/read/2019/12/07/14385741/ternyata-ini-penyebab-harimau-masuk-ke-permukiman-dan-mangsa-ternak-warga?page=all")
 
-berita_htc <- data.frame(Website, url)
-colnames(berita_htc) <- c("Website", "URL")
+berita_htc <- data.frame(Website, tai)
+colnames(berita_htc) <- c("Website", "alamat_website")
 ```
 
 ```{r tab_1, caption = "Beberapa artikel terkait konflik mansia dan harimau (KMH) di Aceh", echo=FALSE}
@@ -52,9 +58,9 @@ options(warn = -1)
 library(knitr)
 library(kableExtra)
 berita_htc %>% 
-  kbl(caption = "Beberapa artikel terkait konflik mansia dan harimau (KMH) di Aceh",
-      digits = c(10, 25)) %>% 
-  kable_styling()
+  kable(caption = "Beberapa artikel terkait konflik mansia dan harimau (KMH) di Aceh",
+      format = "html") %>% 
+  kableExtra::kable_styling(full_width = F)
 ```
 
 ### Gunakan selector gadget untuk mengetahui kode lokasibeberapa informasi
