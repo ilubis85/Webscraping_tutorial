@@ -21,20 +21,20 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-## Apa itu web scrapping
+## I. Apa itu web scrapping
 Berdasarkan halaman [Wikipedia](https://en.wikipedia.org/wiki/Web_scraping), web scraping merujuk pada proses ekstraksi data secara otomatis dari situs web. Dengan menggunakan beberapa baris *scripts*  web scraping memungkinkan pengguna untuk mengambil dan menguraikan halaman HTML atau data terstruktur lainnya dari situs web, serta mengekstrak informasi yang diinginkan. Dengan web scraping, pengguna dapat mengumpulkan data dari berbagai halaman web, mengubahnya ke dalam format yang lebih terstruktur, dan kemudian melakukan analisis atau menggunakan data tersebut untuk berbagai tujuan.
 
-## Apakah web scraping legal?
+## II. Apakah web scraping legal?
 Pertanyaan yang sering muncul adalah apakah kegiatan web scraping legal atau tidak. Berdasarkan informasi terbaru dari [APIFYBlog](https://blog.apify.com/is-web-scraping-legal/#:~:text=can%20scrape%20everything.-,Myth%202%3A%20Web%20scrapers%20operate%20in%20a%20grey%20area%20of,not%20heavily%20regulated%2C%20that's%20true.), web scraping legal selama informasi yang diakses adalah informasi publik dan bukan informasi yang bersifat pribadi atau merupakan kekayaan intelektual. Secara analogi, web scraping bisa diibaratkan seperti mengambil foto, di mana semua boleh difoto kecuali dokumen rahasia atau lokasi-lokasi yang dilarang untuk difoto..
 
 ```{r, out.width='70%', fig.align='center', fig.cap='Mitos terkait web scraping', echo=FALSE, warning=TRUE}
-knitr::include_graphics('D:/myRpackage/Webscraping_tutorial/docs/Webscraping_legal.jpg')
+knitr::include_graphics('E:/myRpackages/Webscraping_tutorial/docs/Webscraping_legal.jpg')
 ```
 
-## Bagaimana melakukan web scrapping
+## III. Bagaimana melakukan web scrapping
 Web scraping dapat dilakukan melalui dua tahap: pertama, mencari dan mengumpulkan alamat website, dan kedua, melakukan ekstraksi informasi yang dibutuhkan dengan membangun kode atau skrip. Jika Anda menggunakan R, Anda dapat menggunakan library **rvest** untuk melakukan ekstraksi data. Sebagai contoh,  kita akan melakukan scraping informasi dari artikel online terkait konflik antara manusia dan harimau (KMH).
 
-#### Kumpulkan beberapa artikel online untuk di-scraping
+#### a. Kumpulkan beberapa artikel online untuk di-scraping
 Konflik manusia dan harimau (KMH) menunjukkan tren peningkatan dalam beberapa tahun terakhir, terutama di daerah dengan tingkat tutupan hutan yang tinggi, seperti di Provinsi Aceh. Saat ini, data terkait sebaran lokasi konflik antara manusia dan harimau tidak tersedia secara umum, padahal informasi tersebut sangat penting untuk mitigasi dan pengendalian konflik guna meminimalkan dampak negatif terhadap manusia dan satwa liar. 
 
 Salah satu sumber informasi publik terkait KMH dapat diakses melalui berita atau artikel online. Tutorial web scraping ini akan mencoba mengekstrak informasi konflik melalui media online. Kita akan menggunakan link berikut ini sebagai contoh
@@ -56,11 +56,7 @@ berita_htc <- data.frame(Website, alamat_website)
 colnames(berita_htc) <- c("Website", "alamat_website")
 ```
 
-```{r tab_1, caption = "Beberapa artikel terkait konflik mansia dan harimau (KMH) di Aceh", echo=FALSE}
-
-```
-
-#### Menggunakan SelectorGadget untuk mengetahui kode lokasi beberapa informasi
+#### b. Gunakan SelectorGadget untuk mengetahui kode lokasi beberapa informasi
 SelectorGadget adalah salah satu ekstensi untuk web browser Chrome yang sangat berguna dalam menentukan kode atau lokasi dari informasi yang ingin diekstrak. Ini memungkinkan Anda dengan mudah memilih elemen HTML yang ingin Anda tuju untuk scraping, seperti tanggal publikasi, penulis artikel, atau isi tulisan. Penting untuk diingat bahwa setiap website, bahkan setiap halaman dalam satu website, mungkin memiliki kode dan lokasi yang berbeda-beda.
 
 **Berikut adalah langkah-langkah penggunaan SelectorGadget:**
@@ -74,6 +70,102 @@ SelectorGadget adalah salah satu ekstensi untuk web browser Chrome yang sangat b
 7. Setelah Anda puas dengan pemilihan elemen, Anda dapat melihat kode selektor di bagian atas jendela SelectorGadget. Anda dapat menyalin dan menggunakan kode tersebut dalam skrip web scraping Anda.
 8. Ulangi langkah-langkah di atas untuk setiap informasi yang ingin Anda ekstrak, seperti tanggal, penulis, atau isi tulisan.
 
-Dengan menggunakan SelectorGadget, Anda dapat dengan mudah mengetahui kode atau lokasi elemen-elemen yang ingin Anda scrape pada halaman web yang dituju. 
+Dengan menggunakan SelectorGadget, Anda dapat dengan mudah mengetahui kode atau lokasi elemen-elemen yang ingin Anda scrape pada halaman web yang dituju, seperti contoh pada gambar berikut. 
 
-#### Menginstal program R dan R studio dan melakukan craping
+```{r, out.width='100%', fig.align='center', fig.cap='Membedah website dengan SelectorGadget', echo=FALSE, warning=TRUE}
+knitr::include_graphics('E:/myRpackages/Webscraping_tutorial/docs/SelectorGadget_ss.png')
+```
+
+#### c. Instal program R dan R studio serta library yang diperlukan untuk web craping
+1. Instal R:
+Unduh dan instal R dari situs [resmi](https://www.r-project.org/).
+Pilih versi yang sesuai untuk sistem operasi Anda (Windows, macOS, Linux) dan ikuti petunjuk instalasi.
+
+2. Instal RStudio (Opsional, tetapi Direkomendasikan):
+RStudio adalah lingkungan pengembangan terpadu (IDE) untuk R yang menyediakan *interface* yang lebih ramah pengguna dan fitur tambahan. Sangat disarankan untuk bekerja dengan R.
+Unduh dan instal RStudio dari situs [resmi](https://www.rstudio.com/products/rstudio/download/).
+Pilih versi gratis (RStudio Desktop) yang sesuai untuk sistem operasi Anda dan ikuti petunjuk instalasi.
+
+3. Instal *library* atau *package* yang diperlukan:
+Web scraping dalam R umumnya membutuhkan beberapa paket. Buka R atau RStudio dan instal paket yang diperlukan dengan menjalankan perintah berikut:
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+library(rvest)
+library(xml2)
+library(tidyverse)
+```
+Dengan demikian, Anda dapat mulai menulis dan menjalankan kode web scraping menggunakan paket yang telah diinstal
+
+##### i. Menulis kode sederhana untuk melakukan web scraping dari satu halaman situs
+Dengan menggunakan *selectorGadget*, kita dapat mengetahui kode website yang dituju terkait lokasi **tanggal artikel terbit**, **judul artikel** dan **isi artikel** :
+```{r, echo=TRUE, warning=FALSE}
+# Membaca alamat website
+url <- rvest::read_html("https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all")
+
+# Membaca tanggal terbit artikel
+tanggal <- url %>% # Membaca alamat website
+  rvest::html_node("time") %>% # Membaca kode tanggal
+  rvest::html_text() # Mengubah ke dalam bentuk text
+tanggal
+
+# Membaca judul artikel
+judul <- url %>% # Membaca alamat website
+  rvest::html_node("#arttitle") %>% # Membaca kode judul artikel
+  rvest::html_text() # Mengubah ke dalam format text
+judul
+
+# Membaca isi artikel
+berita <- url %>% # Membaca alamat website
+  rvest::html_nodes("p") %>% # Membaca kode isi berita artikel
+  rvest::html_text() %>% # Mengubah ke dalam format text
+  {gsub('[\r\n\t\"]', '',.)} # Menghilangkan karakter yang tidak perlu
+head(berita, 5) # Hanya menampilkan 5 kalimat pertama
+
+```
+Saat melakukan web scraping pada isi berita, seringkali kita menemui tautan-tautan yang tidak terkait dengan konten berita tersebut. Menghapus tautan-tautan semacam itu bisa menjadi tantangan dalam web scraping. Sebab, tautan-tautan tersebut dapat memiliki pola atau karakteristik yang berbeda-beda, sehingga menghapusnya secara otomatis menjadi sulit.
+
+##### ii. Menulis kode untuk web scraping pada beberapa halaman situs dari website yang sama
+Dalam banyak kasus, penulisan kode web scraping untuk satu website akan serupa untuk semua halaman web yang ingin Anda scrape. Ini disebabkan oleh keseragaman struktur dan format halaman web yang konsisten di seluruh situs tersebut. Untuk melakukan web scraping dari beberapa halaman dalam satu website yang sama, Anda hanya perlu melakukan looping atau pengulangan untuk mengulangi langkah-langkah sebelumnya untuk setiap halaman.
+
+Contohnya kita akan melakukan webscraping dari tiga halaman yang berasal dari website yang sama, yakni TribunNews.
+```{r, echo=TRUE}
+# Membuat list halaman web dari situs yang sama
+urls <- c("https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all",
+          "https://aceh.tribunnews.com/2020/10/05/harimau-berkeliaran-di-objek-wisata-kempra-dampak-tidak-adanya-kajian-lingkungan-spot-baru",
+          "https://aceh.tribunnews.com/2020/03/11/warga-pastikan-harimau-sumatera-yang-kembali-meneror-mangsa-ternak?page=all")
+
+# Membuat dataframe yang berisi alamat url, serta hasil webscraping (Saat ini hasilnya NA)
+tribun_scraping <- data.frame("Webpages" = urls, "Tanggal" = NA, "Judul" = NA, "Berita" = NA)
+tribun_scraping
+
+# Kemudian lakukan pengulangan (looping) untuk mengekstrak informasi yang diinginkan
+for (i in 1:nrow(tribun_scraping)) {
+  # Ekstraksi tanggal
+  tribun_scraping[i,"Tanggal"] <- rvest::read_html(tribun_scraping[i,"Webpages"]) %>% # Membaca website baris i
+    rvest::html_node("time") %>% # Membaca kode tanggal
+    rvest::html_text() # Mengubah ke dalam format text
+  
+  # Ekstraksi judul artikel
+  tribun_scraping[i,"Judul"] <- rvest::read_html(tribun_scraping[i,"Webpages"]) %>% # Membaca website baris i
+    rvest::html_node("#arttitle") %>% # Membaca kode judul artikel
+    rvest::html_text() # Mengubah ke dalam format text
+  
+  # Ekstraksi isi artikel
+  tribun_scraping[i,"Berita"] <- rvest::read_html(tribun_scraping[i,"Webpages"]) %>% # Membaca website baris i
+  rvest::html_nodes("p") %>% # Membaca kode isi berita artikel
+  rvest::html_text() %>%  # Mengubah ke dalam format text
+    {gsub('[\r\n\t\"]', '',.)} %>% # Bersihkan text
+    paste(collapse ="") # Gabung semua kalimat dalam satu paragraph
+}
+
+# Kemudian cek hasil
+tribun_scraping
+
+# Simpan dalam file csv
+write.csv(tribun_scraping, "E:/myRpackages/Webscraping_tutorial/docs/Tribun_scraping.csv")
+```
+
+Penting untuk dicatat bahwa meskipun penulisan kode pada umumnya sama untuk semua halaman web dalam satu situs, ada kemungkinan adanya variasi atau perubahan dalam struktur HTML pada beberapa halaman. Jika Anda menghadapi perbedaan tersebut, Anda mungkin perlu menyesuaikan kode Anda untuk menangani situasi tersebut secara khusus.
+
+##### iii. Menulis kode untuk web scraping pada beberapa halaman situs dari website yang berbeda
+
+
