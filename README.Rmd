@@ -24,14 +24,33 @@ knitr::opts_chunk$set(
 ## I. Apa itu web scrapping
 Berdasarkan halaman [Wikipedia](https://en.wikipedia.org/wiki/Web_scraping), web scraping merujuk pada proses ekstraksi data secara otomatis dari situs web. Dengan menggunakan beberapa baris *scripts*  web scraping memungkinkan pengguna untuk mengambil dan menguraikan halaman HTML atau data terstruktur lainnya dari situs web, serta mengekstrak informasi yang diinginkan. Dengan web scraping, pengguna dapat mengumpulkan data dari berbagai halaman web, mengubahnya ke dalam format yang lebih terstruktur, dan kemudian melakukan analisis atau menggunakan data tersebut untuk berbagai tujuan.
 
-## II. Apakah web scraping legal?
+## II. Apa tujuan atau kegunaan dari web scraping?
+Web scraping adalah proses ekstraksi data dari situs web. Setelah data dikumpulkan melalui web scraping, data tersebut dapat dianalisis dalam berbagai cara tergantung pada jenis data dan tujuan analisis. Berikut adalah beberapa jenis analisis umum yang dapat dilakukan menggunakan data web scraping:
+
+1. Analisis Sentimen: Web scraping dapat digunakan untuk mengumpulkan data dari platform media sosial, situs ulasan, atau artikel berita, yang kemudian dapat dianalisis untuk menentukan sentimen terhadap produk, merek, atau topik tertentu. Teknik analisis sentimen dapat membantu mengidentifikasi sentimen positif, negatif, atau netral yang terungkap dalam data yang di-scraper.
+
+2. Riset Pasar: Web scraping dapat digunakan untuk mengumpulkan data tentang harga, fitur produk, ulasan pelanggan, atau informasi pesaing dari situs e-commerce. Data ini dapat digunakan untuk tujuan riset pasar seperti pemantauan harga, analisis tren, atau mengidentifikasi kesenjangan di pasar.
+
+3. Analisis Konten: Web scraping dapat digunakan untuk mengekstraksi data teks dari situs web, seperti artikel berita, pos blog, atau diskusi forum. Data ini dapat dianalisis menggunakan teknik seperti pemrosesan bahasa alami (natural language processing/NLP) untuk mengidentifikasi pola, topik, atau kata kunci yang menarik. Analisis konten dapat digunakan untuk tujuan riset, pemantauan tren, atau memahami pendapat pelanggan.
+
+4. Analisis Jaringan Sosial: Web scraping dapat digunakan untuk mengumpulkan data dari platform media sosial atau komunitas online. Data ini dapat digunakan untuk analisis jaringan sosial, yang melibatkan pemeriksaan hubungan antara individu, kelompok, atau organisasi. Analisis jaringan sosial dapat memberikan wawasan tentang aliran informasi, pengaruh, atau dinamika komunitas.
+
+5. Visualisasi Data: Data hasil web scraping dapat divisualisasikan menggunakan berbagai alat dan teknik. Visualisasi dapat membantu mengidentifikasi pola, tren, atau anomali dalam data. Representasi visual seperti grafik, diagram, atau peta dapat memudahkan interpretasi dan komunikasi wawasan yang diperoleh dari data yang di-scraper.
+
+6. Pembelajaran Mesin dan Pemodelan Prediktif: Data hasil web scraping dapat menjadi sumber daya berharga untuk melatih model pembelajaran mesin atau membangun model prediktif. Dengan mengumpulkan jumlah data yang besar, termasuk fitur-fitur yang menarik, web scraping memungkinkan pengembangan model yang dapat memprediksi hasil, mengklasifikasikan data, atau memberikan rekomendasi.
+
+7. Analisis Kompetitif: Web scraping dapat digunakan untuk mengumpulkan data tentang situs web pesaing, daftar produk, informasi harga, atau strategi pemasaran. Data ini dapat memberikan wawasan tentang posisi pasar, penawaran pesaing, atau strategi penetapan harga, membantu bisnis membuat keputusan yang terinformasi dan mendapatkan keunggulan kompetitif.
+
+Itulah beberapa contoh jenis analisis yang dapat dilakukan menggunakan data web scraping. Kemungkinannya sangat luas, dan teknik analisis yang digunakan secara spesifik
+
+## III. Apakah web scraping legal?
 Pertanyaan yang sering muncul adalah apakah kegiatan web scraping legal atau tidak. Berdasarkan informasi terbaru dari [APIFYBlog](https://blog.apify.com/is-web-scraping-legal/#:~:text=can%20scrape%20everything.-,Myth%202%3A%20Web%20scrapers%20operate%20in%20a%20grey%20area%20of,not%20heavily%20regulated%2C%20that's%20true.), web scraping legal selama informasi yang diakses adalah informasi publik dan bukan informasi yang bersifat pribadi atau merupakan kekayaan intelektual. Secara analogi, web scraping bisa diibaratkan seperti mengambil foto, di mana semua boleh difoto kecuali dokumen rahasia atau lokasi-lokasi yang dilarang untuk difoto..
 
 ```{r, out.width='70%', fig.align='center', fig.cap='Mitos terkait web scraping', echo=FALSE, warning=TRUE}
 knitr::include_graphics('E:/myRpackages/Webscraping_tutorial/docs/Webscraping_legal.jpg')
 ```
 
-## III. Bagaimana melakukan web scrapping
+## IV. Bagaimana melakukan web scrapping
 Web scraping dapat dilakukan melalui dua tahap: pertama, mencari dan mengumpulkan alamat website, dan kedua, melakukan ekstraksi informasi yang dibutuhkan dengan membangun kode atau skrip. Jika Anda menggunakan R, Anda dapat menggunakan library **rvest** untuk melakukan ekstraksi data. Sebagai contoh,  kita akan melakukan scraping informasi dari artikel online terkait konflik antara manusia dan harimau (KMH).
 
 #### a. Kumpulkan beberapa artikel online untuk di-scraping
@@ -127,8 +146,9 @@ Saat melakukan web scraping pada isi berita, seringkali kita menemui tautan-taut
 Dalam banyak kasus, penulisan kode web scraping untuk satu website akan serupa untuk semua halaman web yang ingin Anda scrape. Ini disebabkan oleh keseragaman struktur dan format halaman web yang konsisten di seluruh situs tersebut. Untuk melakukan web scraping dari beberapa halaman dalam satu website yang sama, Anda hanya perlu melakukan looping atau pengulangan untuk mengulangi langkah-langkah sebelumnya untuk setiap halaman.
 
 Contohnya kita akan melakukan webscraping dari tiga halaman yang berasal dari website yang sama, yakni TribunNews.
+
 ```{r, echo=TRUE}
-# Membuat list halaman web dari situs yang sama
+# Tambahkan 2 webpages yang berbeda pada daftar alamat website
 urls <- c("https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all",
           "https://aceh.tribunnews.com/2020/10/05/harimau-berkeliaran-di-objek-wisata-kempra-dampak-tidak-adanya-kajian-lingkungan-spot-baru",
           "https://aceh.tribunnews.com/2020/03/11/warga-pastikan-harimau-sumatera-yang-kembali-meneror-mangsa-ternak?page=all")
@@ -167,5 +187,79 @@ write.csv(tribun_scraping, "E:/myRpackages/Webscraping_tutorial/docs/Tribun_scra
 Penting untuk dicatat bahwa meskipun penulisan kode pada umumnya sama untuk semua halaman web dalam satu situs, ada kemungkinan adanya variasi atau perubahan dalam struktur HTML pada beberapa halaman. Jika Anda menghadapi perbedaan tersebut, Anda mungkin perlu menyesuaikan kode Anda untuk menangani situasi tersebut secara khusus.
 
 ##### iii. Menulis kode untuk web scraping pada beberapa halaman situs dari website yang berbeda
+Setiap website umumnya memiliki struktur HTML yang berbeda, sehingga untuk melakukan web scraping pada beberapa website yang berbeda, diperlukan adaptasi pada setiap website untuk mengidentifikasi lokasi kode informasi yang diinginkan menggunakan selektorGadget. Selanjutnya, informasi yang ingin diekstrak dari masing-masing website dapat dilakukan dengan menggunakan pengulangan atau looping yang serupa dengan langkah sebelumnya. Perbedaannya, untuk website yang berbeda, kita perlu menggunakan *alternatination* dengan **if** dan **else** seperti contoh berikut.
 
+```{r, echo=TRUE}
+# Membuat list halaman web dari situs yang sama
+urls <- c("https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all",
+          "https://aceh.tribunnews.com/2020/10/05/harimau-berkeliaran-di-objek-wisata-kempra-dampak-tidak-adanya-kajian-lingkungan-spot-baru",
+          "https://aceh.tribunnews.com/2020/03/11/warga-pastikan-harimau-sumatera-yang-kembali-meneror-mangsa-ternak?page=all",
+          "https://regional.kompas.com/read/2018/11/15/16461841/masuk-ke-kampung-kawanan-harimau-sumatera-terkam-3-ekor-kerbau-warga?page=all",
+         "https://regional.kompas.com/read/2019/12/07/14385741/ternyata-ini-penyebab-harimau-masuk-ke-permukiman-dan-mangsa-ternak-warga?page=all")
+
+# Membuat dataframe yang berisi nama media penerbit, alamat url, serta hasil webscraping (Saat ini hasilnya NA)
+web_scraping <- data.frame("Media" = c("Tribunnews", "Tribunnews", "Tribunnews", "Kompas", "Kompas"), 
+                           "Webpages" = urls, "Tanggal" = NA, "Judul" = NA, "Berita" = NA)
+web_scraping
+
+# Kemudian lakukan pengulangan (looping) untuk mengekstrak informasi yang diinginkan
+# dan gunakan if dan else untuk menyesuaikan kode pada website yang berbeda
+for (i in 1:nrow(web_scraping)) {
+  # Untuk Media Tribunnews, gunakan kode berikut
+  if(web_scraping$Media[i]=="Tribunnews") {
+    # Ekstraksi tanggal
+  web_scraping[i,"Tanggal"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
+    rvest::html_node("time") %>% # Membaca kode tanggal
+    rvest::html_text() # Mengubah ke dalam format text
+  
+  # Ekstraksi judul artikel
+  web_scraping[i,"Judul"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
+    rvest::html_node("#arttitle") %>% # Membaca kode judul artikel
+    rvest::html_text() # Mengubah ke dalam format text
+  
+  # Ekstraksi isi artikel
+  web_scraping[i,"Berita"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
+  rvest::html_nodes("p") %>% # Membaca kode isi berita artikel
+  rvest::html_text() %>%  # Mengubah ke dalam format text
+    {gsub('[\r\n\t\"]', '',.)} %>% # Bersihkan text
+    paste(collapse ="") # Gabung semua kalimat dalam satu paragraph
+  }
+  # Untuk media kompas, gunakan kode berikut
+  else if(web_scraping$Media[i]=="Kompas"){
+    # Ekstraksi tanggal
+  web_scraping[i,"Tanggal"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
+    rvest::html_node(".read__time") %>% # Membaca kode tanggal
+    rvest::html_text() # Mengubah ke dalam format text
+  
+  # Ekstraksi judul artikel
+  web_scraping[i,"Judul"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
+    rvest::html_node(".read__title") %>% # Membaca kode judul artikel
+    rvest::html_text() # Mengubah ke dalam format text
+  
+  # Ekstraksi isi artikel
+  web_scraping[i,"Berita"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
+  rvest::html_nodes("p") %>% # Membaca kode isi berita artikel
+  rvest::html_text() %>%  # Mengubah ke dalam format text
+    {gsub('[\r\n\t\"]', '',.)} %>% # Bersihkan text
+    paste(collapse ="") # Gabung semua kalimat dalam satu paragraph
+  }
+  # Jika bukan Tribun dan Kompas, stop!!
+  else { stop('Media bukan Tribun atau Kompas')}
+}
+
+# Kemudian cek hasil
+web_scraping
+
+# Simpan dalam file csv
+write.csv(web_scraping, "E:/myRpackages/Webscraping_tutorial/docs/web_scraping.csv")
+```
+Dengan menggunakan model contoh di atas, Anda sekarang dapat melakukan web scraping pada beberapa halaman web, baik dari website yang sama maupun website yang berbeda. Setelah data terkumpul, Anda dapat melanjutkan dengan menganalisis data tersebut.
+
+## V. Pembersihan data hasil web scraping
+Data yang dikumpulkan melalui web scraping perlu melalui proses pembersihan sebelum analisis lebih lanjut. Pembersihan ini melibatkan penghapusan karakter khusus seperti hashtag atau simbol yang tidak diinginkan, normalisasi teks seperti mengubah semua huruf menjadi huruf kecil yang konsisten atau mengembalikan kata-kata ke bentuk dasar, penghapusan data duplikat, validasi data, penghapusan spasi, dan penghapusan kata-kata umum yang tidak memberikan makna jika digunakan sendiri, seperti 'dan', 'atau', 'dari', 'ke', dan lainnya.
+
+## VI. Beberapa contoh analisis data yang dapat dilakukan dengan menggunakan web scraping
+### a. Analisis sentimen
+
+### b. Word cloud
 
