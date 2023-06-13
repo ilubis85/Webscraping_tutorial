@@ -465,8 +465,152 @@ penghapusan data duplikat, validasi data, penghapusan spasi, dan
 penghapusan kata-kata umum yang tidak memberikan makna jika digunakan
 sendiri, seperti ‘dan’, ‘atau’, ‘dari’, ‘ke’, dan lainnya.
 
+Tahapan selanjutnya adalah membersihkan data hasil web scraping,
+terutama pada bagian isi berita di mana informasi yang akan dianalisis
+terdapat.
+
+``` r
+# Memanggil library khusus untuk teks mining
+library(tm)
+#> Loading required package: NLP
+#> 
+#> Attaching package: 'NLP'
+#> The following object is masked from 'package:ggplot2':
+#> 
+#>     annotate
+library(corpus)
+
+# Memanggil contoh data yang akan dibersihkan yang merupakan gabungan dari beberapa isi berita
+teks_kotor <- paste(web_scraping$Berita[1], web_scraping$Berita[2], web_scraping$Berita[3], 
+                    web_scraping$Berita[4], web_scraping$Berita[5]) 
+
+# Mengubah ke format COrpus untuk pembersihan
+teks_corpus <- Corpus(VectorSource(teks_kotor))
+
+# Merubah ke huruf kecil
+teks_corpus <- tm_map(teks_corpus, content_transformer(tolower))
+
+# Menghapus tanda baca
+teks_corpus <- tm_map(teks_corpus, removePunctuation)
+
+# Menghapus angka
+teks_corpus <- tm_map(teks_corpus, removeNumbers)
+
+# Menghapus stopWords
+# Memanggil stopwords dalam bahasa Indonesia (sumber: https://github.com/masdevid/ID-Stopwords)
+stopwords_id <- readLines("docs/id.stopwords.02.01.2016.txt") 
+teks_corpus <- tm_map(teks_corpus, removeWords, stopwords_id)
+
+# Menghapus spasi
+teks_corpus <- tm_map(teks_corpus, stripWhitespace)
+
+# Melihat teks yang telah dibersihkan
+teks_bersih <- as.character(teks_corpus[[1]])
+```
+
 ## VI. Beberapa contoh analisis data yang dapat dilakukan dengan menggunakan web scraping
 
-### a. Analisis sentimen
+### a. Frequensi kata
+
+Dari data yang sudah bersih, kita akan menghitung seberapa sering suatu
+kata muncul di dalam teks tersebut.
+
+``` r
+# Memisahkan teks menjadi kata-kata individu
+teks <- unlist(strsplit(teks_bersih, " "))
+
+# Menghitung frekuensi setiap kata
+frekuensi_kata <- table(teks)
+
+# Mengurutkan frekuensi kata secara menurun
+frekuensi_terurut <- sort(frekuensi_kata, decreasing = TRUE)
+
+# Menampilkan 10 kata paling sering muncul
+kata_teratas <- head(frekuensi_terurut, 10)
+kata_teratas
+#> teks
+#>    harimau      warga       desa permukiman   penduduk     ternak      bksda 
+#>         90         40         35         35         28         25         19 
+#>       aceh      bawan   sumatera 
+#>         18         18         18
+
+# Konversi ke format dataframe
+kata_terbanyak <- as.data.frame(kata_teratas)
+```
+
+Selanjutnya, kita dapat membuat visualisasi plot untuk melihat kata yang
+paling sering muncul dalam teks.
+
+<div class="figure" style="text-align: center">
+
+<img src="man/figures/README-unnamed-chunk-11-1.png" alt="Kata dengan frequensi paling banyak" width="80%" />
+<p class="caption">
+Kata dengan frequensi paling banyak
+</p>
+
+</div>
 
 ### b. Word cloud
+
+Anda juga dapat membuat word cloud atau awan kata untuk
+memvisualisasikan kata-kata dan frekuensinya.
+
+<div class="figure" style="text-align: center">
+
+<img src="man/figures/README-unnamed-chunk-12-1.png" alt="Worcloud" width="60%" />
+<p class="caption">
+Worcloud
+</p>
+
+</div>
+
+### c. Analisis sentimen
+
+Contoh analisis selanjutnya adalah analisis sentimen yang bertujuan
+untuk mengidentifikasi sentimen positif, negatif, atau netral yang
+terungkap dalam data yang telah di-scrape.
+
+``` r
+# Memuat library yang diperlukan
+library(tidytext)
+#> Warning: package 'tidytext' was built under R version 4.2.3
+library(sentimentr)
+#> Warning: package 'sentimentr' was built under R version 4.2.3
+
+# Analysis sentiment
+sentiment_scores <- sentiment(teks_bersih)
+
+# Print sentiment scores
+print(sentiment_scores)
+#>    element_id sentence_id word_count  sentiment
+#> 1:          1           1       1723 -0.1252739
+```
+
+Skor hasil analisis sentimen mencerminkan polaritas sentimen teks,
+menunjukkan apakah teks memiliki sentimen positif atau negatif. Skor
+tersebut umumnya berupa nilai numerik yang berkisar antara nilai negatif
+dan nilai positif. Berikut ini interpretasi umum skor sentimen:
+
+Sentimen Positif: Jika skor sentimen mendekati 1 atau bernilai positif,
+itu menunjukkan bahwa teks memiliki sentimen positif. Semakin tinggi
+skornya, semakin kuat sentimen positifnya.
+
+Sentimen Negatif: Jika skor sentimen mendekati -1 atau bernilai negatif,
+itu menunjukkan bahwa teks memiliki sentimen negatif. Semakin rendah
+skornya, semakin kuat sentimen negatifnya.
+
+Sentimen Netral: Jika skor sentimen mendekati 0, itu mengindikasikan
+bahwa teks netral dan tidak memiliki sentimen positif atau negatif yang
+kuat.
+
+Perlu diingat bahwa berbagai pustaka atau model analisis sentimen
+mungkin menggunakan skala atau metode penilaian yang berbeda. Oleh
+karena itu, disarankan untuk merujuk pada dokumentasi atau panduan
+khusus dari pustaka atau model analisis sentimen yang Anda gunakan untuk
+interpretasi yang lebih akurat terkait skor sentimen.
+
+Selain itu, analisis sentimen tidak selalu sempurna dan dapat memiliki
+keterbatasan, terutama ketika menangani teks yang nuansanya atau
+bergantung pada konteks. Selalu merupakan praktik yang baik untuk
+meninjau hasilnya dan mempertimbangkan konteks yang lebih luas serta
+pengetahuan domain saat menginterpretasikan skor analisis sentimen.
