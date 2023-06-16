@@ -337,7 +337,7 @@ menggunakan *alternatination* dengan **if** dan **else** seperti contoh
 berikut.
 
 ``` r
-# Membuat list halaman web dari situs yang sama
+# Membuat list halaman web dari situs yang berbeda
 urls <- c("https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all",
           "https://aceh.tribunnews.com/2020/10/05/harimau-berkeliaran-di-objek-wisata-kempra-dampak-tidak-adanya-kajian-lingkungan-spot-baru",
           "https://aceh.tribunnews.com/2020/03/11/warga-pastikan-harimau-sumatera-yang-kembali-meneror-mangsa-ternak?page=all",
@@ -553,7 +553,8 @@ Kata dengan frequensi paling banyak
 ### b. Word cloud
 
 Anda juga dapat membuat word cloud atau awan kata untuk
-memvisualisasikan kata-kata dan frekuensinya.
+memvisualisasikan atau memperlihatkan frequensi kemunculan kata-kata
+dalam suatu teks dengan cara yang menarik dan mudah dipahami.
 
 <div class="figure" style="text-align: center">
 
@@ -567,8 +568,9 @@ Worcloud
 ### c. Analisis sentimen
 
 Contoh analisis selanjutnya adalah analisis sentimen yang bertujuan
-untuk mengidentifikasi sentimen positif, negatif, atau netral yang
-terungkap dalam data yang telah di-scrape.
+untuk mengidentifikasi sentimen atau nada emosional yang dapat berupa
+sentimen positif, negatif, atau netral yang terungkap dalam teks yang
+telah di-scrape.
 
 ``` r
 # Memuat library yang diperlukan
@@ -614,3 +616,80 @@ keterbatasan, terutama ketika menangani teks yang nuansanya atau
 bergantung pada konteks. Selalu merupakan praktik yang baik untuk
 meninjau hasilnya dan mempertimbangkan konteks yang lebih luas serta
 pengetahuan domain saat menginterpretasikan skor analisis sentimen.
+
+### d. Analisis konten
+
+Analisis konten juga dapat dilakukan pada teks yang sudah di scraping
+yang bertujuan untuk memeriksa isi teks atau mengektrak informasi yang
+dibutuhkan. Contohnya informasi produk, harga, lokasi, ulasan, dan
+opini. Dalam konteks konservasi KEHATI, analisis konten bisa membantu
+dalam mengumpulkan data seperti lokasi terjadinya konflik manusia dan
+harimau sebagai bahan untuk mitigasi konflik. Sebagai contoh, kita akan
+melakukan ekstraksi lokasi dimana konflik terjadi.
+
+``` r
+# Membuat kumpulan kata yang akan diekstrak
+list_desa <- c('bawan', 'kute keramil', 'leubok pusaka', 'bengkelang')
+
+# Merubah struktur teks menjadi beberapa suku kata atau urutan kata
+teks_suku_kata <- teks_bersih[1] %>% # Pilih teks dari website 1 yang sudah bersih
+  corpus::term_stats(ngrams = 1:2) %>% # Membuat list potensi suku kata
+  dplyr::select("term") # Ekstrak kolom term saja
+
+# Cek hasil
+teks_suku_kata
+#>    term               
+#> 1  harimau            
+#> 2  warga              
+#> 3  desa               
+#> 4  permukiman         
+#> 5  penduduk           
+#> 6  ternak             
+#> 7  permukiman penduduk
+#> 8  ”                  
+#> 9  bksda              
+#> 10 masuk              
+#> 11 sumatera           
+#> 12 aceh               
+#> 13 bawan              
+#> 14 harimau sumatera   
+#> 15 kecamatan          
+#> 16 hutan              
+#> 17 desa bawan         
+#> 18 ekor               
+#> 19 jejak              
+#> 20 kecamatan sultan   
+#> ⋮  (1816 rows total)
+
+# Ekstraksi nama desa yang dicari yang terdapat pada teks pada website pertama
+# Memanggil pustaka stringdist
+library(stringdist)
+desa_teks <- tidyr::crossing(teks_suku_kata, list_desa) %>% #
+  as.data.frame() %>% 
+  # Hitung kesamaan kata (similarity)
+  dplyr::mutate('kesamaan' = stringdist::stringsim(term, list_desa)) %>% 
+  # Filter kata yang memiliki tingkat kesamaan tinggi
+  dplyr::filter(kesamaan >= 0.8)
+
+# Tampilkan hasil
+desa_teks
+#>            term     list_desa kesamaan
+#> 1         badan         bawan      0.8
+#> 2         bawan         bawan      1.0
+#> 3    bengkelang    bengkelang      1.0
+#> 4  kute keramil  kute keramil      1.0
+#> 5 leubok pusaka leubok pusaka      1.0
+```
+
+Beberapa contoh di atas tentunya merupakan contoh sederhana karena untuk
+mendapatkan informasi yang lebih terperinci dan akurat dari artikel yang
+tidak terstruktur, diperlukan analisis dan proses yang lebih kompleks.
+Beragam tantangan juga muncul, seperti ketidakkonsistenan unit (cth:
+seribu, 1000, 1K), kesalahan penulisan nama tempat oleh penulis artikel
+(Tapaktuan menjadi Tapak tuan), dan gangguan dari tautan-tautan yang
+terekam saat web-scraping.
+
+Namun, secara umum, dengan melakukan web scraping dan teks mining, Anda
+dapat memperoleh data dan informasi penting tanpa harus pergi ke
+lapangan atau mengeluarkan biaya tambahan selain biaya listrik dan
+internet :)
