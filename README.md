@@ -192,9 +192,8 @@ Membedah website dengan SelectorGadget
     paket yang diperlukan dengan menjalankan perintah berikut:
 
 ``` r
-library(rvest)
-library(xml2)
-library(tidyverse)
+library(rvest) # Untuk web scraping
+library(tidyverse) # Untuk data cleaning
 ```
 
 Dengan demikian, Anda dapat mulai menulis dan menjalankan kode web
@@ -463,49 +462,48 @@ diinginkan, normalisasi teks seperti mengubah semua huruf menjadi huruf
 kecil yang konsisten atau mengembalikan kata-kata ke bentuk dasar,
 penghapusan data duplikat, validasi data, penghapusan spasi, dan
 penghapusan kata-kata umum yang tidak memberikan makna jika digunakan
-sendiri, seperti ‘dan’, ‘atau’, ‘dari’, ‘ke’, dan lainnya.
+sendiri, seperti ‘dan’, ‘atau’, ‘dari’, ‘ke’, dan lainnya. Daftar
+*stopwords* untuk bahasa Indonesia dapat di download pada [link github
+ini](https://github.com/masdevid/ID-Stopwords)
 
 Tahapan selanjutnya adalah membersihkan data hasil web scraping,
 terutama pada bagian isi berita di mana informasi yang akan dianalisis
 terdapat.
 
 ``` r
-# Memanggil library khusus untuk teks mining
-library(tm)
-#> Loading required package: NLP
-#> 
-#> Attaching package: 'NLP'
-#> The following object is masked from 'package:ggplot2':
-#> 
-#>     annotate
-library(corpus)
-
 # Memanggil contoh data yang akan dibersihkan yang merupakan gabungan dari beberapa isi berita
 teks_kotor <- paste(web_scraping$Berita[1], web_scraping$Berita[2], web_scraping$Berita[3], 
                     web_scraping$Berita[4], web_scraping$Berita[5]) 
 
-# Mengubah ke format COrpus untuk pembersihan
-teks_corpus <- Corpus(VectorSource(teks_kotor))
-
-# Merubah ke huruf kecil
-teks_corpus <- tm_map(teks_corpus, content_transformer(tolower))
+# Merubah semua teks menjadi huruf kecil
+teks_bersih_kecil <- tolower(teks_kotor)
 
 # Menghapus tanda baca
-teks_corpus <- tm_map(teks_corpus, removePunctuation)
+teks_bersih_tandabaca <- gsub("[[:punct:]]", "", teks_bersih_kecil)
 
 # Menghapus angka
-teks_corpus <- tm_map(teks_corpus, removeNumbers)
+teks_bersih_angka <- gsub("\\d+", "", teks_bersih_tandabaca)
+
+# Menghapus ekstra spasi
+teks_bersih_spasi <- trimws(teks_bersih_angka)
 
 # Menghapus stopWords
-# Memanggil stopwords dalam bahasa Indonesia (sumber: https://github.com/masdevid/ID-Stopwords)
+# Memanggil stopwords dalam bahasa Indonesia
+# download pada link [ini](https://github.com/masdevid/ID-Stopwords)
 stopwords_id <- readLines("docs/id.stopwords.02.01.2016.txt") 
-teks_corpus <- tm_map(teks_corpus, removeWords, stopwords_id)
 
-# Menghapus spasi
-teks_corpus <- tm_map(teks_corpus, stripWhitespace)
+# Merubah teks menjadi individual kata
+teks_bersih_vektor <- unlist(strsplit(teks_bersih_spasi, "\\s+"))
+
+# Menghapus stopwords dari barisan kata
+teks_bersih_stopwords <- teks_bersih_vektor[!teks_bersih_vektor %in% stopwords_id]
+
+# Menggabung kembali barisan kata menjadi kalimat dan paragrap
+teks_bersih <- paste(teks_bersih_stopwords, collapse = " ")
 
 # Melihat teks yang telah dibersihkan
-teks_bersih <- as.character(teks_corpus[[1]])
+teks_bersih
+#> [1] "  kabar terkini sang raja rimba muncul permukiman penduduk desa bawan kecamatan sultan daulat kota subulussalamlaporan khalidin i subulussalamserambinewscom subulussalam konflik manusia hewan harimau sumatera kecamatan sultan daulat kota subulussalam meredakabar terkini sang raja rimba muncul permukiman penduduk desa bawan kecamatan sultan daulat kota subulussalaminformasi aksi kawanan harimau berkeliaran permukiman penduduk pindah desa bawan diposting salah mantan anggota dprk subulussalam rasumin pohanrasumin memposting rekaman foto bekas jejak kaki harimau sumatera areal perkebunan permukiman penduduktak bekas jejak kaki postingan diunggah tujuh jam menunjukan jereken mengalami kerusakan bekas gigitan cakaran kasrem tu tinjau pemadaman karhutla nagan raya dinas perpustakaan gelar pertemuan keuchik pengelola perpustakaan aceh wali kota banda aceh launching aplikasi tapping box optimalkan penerimaan pajaksehari pengakuan kandong maha salah tokoh pemuda kecamatan sultan daulatpak kandong maha mengaku masyarakat bawan ketakutan akibat harimau muncul daerah itusebelumnya kawanan harimau masuk permukiman penduduk berhasil diusir balai konservasi sumber daya alam bksda jasa pawang sarwani sabi alias carwanikepala seksi wilayah ii subulussalam bksda hadi sofyan dikonfirmasi serambinewscom membenarkan laporan harimau masuk permukiman penduduk desa bawan kecamatan sultan daulatatas tim bksda pekan bercamp desa singgersing diterjunkan desa bawan dicek jejak kaki harimau desa bawanhadi sofyan timnya menemukan jejak kaki satwa dilindungi membantah ternak warga desa bawan dimangsa harimau terkat bksda hadi sofyan memasang kamera trap lokasi dilaporkan melacak individu harimau terkaitjejak ternak dimangsa pasang kamera trap lokasi laporan hadi sofyansebagaimana diberitakan pekan harimau sumatera warawiri permukiman penduduk desa singgersing kecamatan sultan daulat kota subulussalam masyarakat resah kawanan harimau sumatera panthera tigris sumatrae berkeliaran permukiman penduduk areal perkebunan setempatterus terang terancam harimaunya malam turun kampong nasution salah warga desa singgersing serambinewscom rabu nasution selasa malam kawanan harimau masuk permukiman penduduk menerkam ternak sapi milik rama warga desa singgersingmeski memangsa habis tubuh punggung leher ternak sapi terluka parah akibat cakaran gigitan sang raja hutan kandang ternak milik rama persis rumahnya jalan nasionalmasuknya harimau nekat menerkam ternak rumah masyarakat singgersing resahapalagi harimau masuk permukiman penduduk dikabarkan ekor kambing hilangharimau masuk meter rumah penduduk posisi harimau belasan meter rumah pendudukmasalahnya balai konservasi sumber daya alam bksda tindakan penangkapan rangka menanggulangi harimau meresahkanpadahal aksi harimau permukiman penduduk berpotensi mencelakai manusia warga mendesak bksda bertindak korban manusiajangan korban jiwa manusia bertindak ternak diterkam warga ketakutan membahayakan manusia wargamenurut nasution harimau muncul permukiman penduduk malam wib tanggungtanggung binatang buas masuk permukiman penduduk merusak kandang ternak sapi warga sanaharimau berusaha menerkam sapi ternak warga rumahnya kandang pemilik rumahakibat terkaman harimau tubuh punggung sapi terluka parah luka persis leher kaki pangkal kaki depansementara tujuh ekor lari terbiritbirit rumah warga menghindari terkaman satwa dilindungi nasution ekor sapi warga hilang diduga ketakutan dna lari hutan sapi milik rama ekor pekan ekor sapi diterkam sang raja hutan ekor sapi rama mangsakini sapi rama tinggal delapan ekor malam sang harimau menerkam melukai sapi milik rama ekor hilang berdasarkan informasi sebulan harimau berkeliaran permukiman penduduk pekan harimau menjadijadi sang harimau muncul wib balai konservasi sumber daya alam bksda wilayah ii subulussalam sebatas turun menyalakan mercon pawang sayangnya upaya ritual pawang mengusir sang harimau saban malam masuk permukiman pendudukkini warga gerah mendesak bksda menanggulangi aksi harimau pasalnya akibat harimau warga ketakutan berusaha tidur warga mengaku nyaman warga bksda menunggu jatuhnya korban jiwa aksi harimau sanapihak bksda tunggu korban manusia harimau meresahkan samping rumah bahaya korban jiwa wargasebelumnya harimau sumatera masuk permukiman penduduk desa singgersing kecamatan sultan daulat kota subulussalam senin malam ternak kambing warga dilaporkan dimangsa sang raja hutan ajeng salah masyarakat desa singgersing dikonfirmasi serambinewscom harimau masuk permukiman penduduk wib posisi harimau rumah penduduk hitungan puluhan meter harimaunya an meter ajeng wartawanajeng mengaku ketakutan akibat teror harimau desa pasalnya berkeliaran mendekat aksi pengusiran berhasil warga berharap berenang mengambil langkah sigap menghalau kawanan harimau mencelakai manusiajakarsi ketua badan permusyawaratan kampong bpk desa singgersing melaporkan jakarsi warga sempa menyisir jejak telapak kaki harimau barutampak bekas penyeretan ternak wargamalam masul harimaunya lokasi bekas jejak kaki kayanya bekas seretan kambing terang jakarsi seraya riual pengusiran pawang berdampak apapun laporan rahmad wiguna aceh tamiangserambinewscom kualasimpang kemunculan harimau seputaran objek wisata aceh tamiang sorotan serius aktivisfenomena aktivis dampak pembukaan spot objek wisata kajian lingkungankesimpulan manajer riset kawasan ekosistem pulau sumatera kempra andi nur muhammad kali menelusuri langsung jejak harimau kawasan hulu aceh tamiangmenurutnya kehadiran harimau wilayah ekspansi habitat asli harimau sumatrasebenarnya temanteman petualangan pecinta alam harimau gajah orangutan kawasan lokasi dijadikan objek wisata nama tamsar andi senin tim pemulasaran jenazah pasien covid pingsan makamkan warga prokes malam total pasien covid aceh sembuh capai orang akumulasi dewi persik ingatkan suami kawin ketahuan lakukan iniandi mengaku terkejut kemunculan harimau wilayah dibukanya wilayah objek wisata barulah spesies dilindungi sambungnyahal terlepas dibukanya kawasan objek wisata menyayangkan pembukaan spot diawali kajian lingkungan dampak analisiskesannya mendadak tibatiba dengar daerah dijadikan daerah ekowisata kajian lingkungannya paparnyakondisi diperparah penguasaan wilayah hutan mempersempit jarak jelajah harimaudia khawatir penanganan serius konflik manusia hewan buas aceh tamiang sekda langsa sembuh pasien positif covid dinyatakan sehat orang penyembuhan video azerbaijan bebaskan jabrayil konflik armenia brimob nagan raya datangi kompi b krueng isep surprise kue hut tniseperti harimau muncul perkebunan warga kampung bengkelang bandarpusaka aceh tamiang memangsa seekor lembu milik warga jumat lokasi penampakan harimau persimpangan objek wisata sangkapane hewan buas seputaran lokasi wisata kuala paret kampung kaloy tamiang hulusebaiknya warga mendekati lokasi bangkai lembu kebiasaan harimau memakan hasil tangkapannya pesan andi laporan khalidin subulussalamserambinewscom subulussalam  warga kesaksian teror harimau sumatera desa kecamatan sultan daulat kota subulussalamsebenarnya singgersing darul makmur harimau masuk bawan kemarin muncul kandong maha aktivis pemuda kecamatan sultan daulat serambinewscom selasa kandong membeberkan fakta terkait kemunculan harimau desa bawan rumah pendudukdikatakan harimau muncul kamis malam jumat andong berkeliaran harimau menyasar ternak masyarakat kambingandong ternak warga desa bawan diserang harimau terakhir  ternak diserang kambing milik saudaranya bernama takwa beruntung kambing terluka disembelih pemilikbukan warga menyaksikan atraksi harimau menyasar ternak warga naik  pohon pinang menerkamselain andong harimau diduga menyasar ternak warga desa gunung bakti berdasarkan ditemukannya sisa isi perut kambing kebun rumah andong andong kambing milik manaf diduga kuat korban terkaman harimausaya pastikan ternak diserang harimau bksda serius menangani andonglebih andong harimau ditangkap dilepas habitatnya serangan permukiman penduduk bawan diduga kemarahan harimau penangkapan anaknyaandong bksda bekerjasama pawang lokal memahami karakteristik harimau hutan tersebutseperti diberitakan konflik manusia hewan harimau sumatera kecamatan sultan daulat kota subulussalam meredakabar terkini sang raja rimba muncul permukiman penduduk desa bawan kecamatan sultan daulat kota subulussalaminformasi aksi kawanan harimau berkeliaran permukiman penduduk pindah desa bawan diposting salah mantan anggota dprk subulussalam rasumin pohanrasumin memposting rekaman foto bekas jejak kaki harimau sumatera areal perkebunan permukiman penduduktak bekas jejak kaki postingan diunggah tujuh jam menunjukan jereken mengalami kerusakan bekas gigitan cakaransehari pengakuan kandong maha salah tokoh pemuda kecamatan sultan daulat kandong maha mengaku masyarakat bawan ketakutan akibat harimau muncul daerah itusebelumnya kawanan harimau masuk permukiman penduduk berhasil diusir balai konservasi sumber daya alam bksda jasa pawang sarwani sabi alias carwanikepala seksi wilayah ii subulussalam bksda hadi sofyan dikonfirmasi serambinewscom membenarkan laporan harimau masuk permukiman penduduk desa bawan kecamatan sultan daulatatas tim bksda pekan bercamp desa singgersing diterjunkan desa bawan dicek jejak kaki harimau desa bawanhadi sofyan timnya menemukan jejak kaki satwa dilindungi membantah ternak warga desa bawan dimangsa harimau terkat bksda hadi sofyan memasang kamera trap lokasi dilaporkan melacak individu harimau terkaitjejak ternak dimangsa pasang kamera trap lokasi laporan hadi sofyansebagaimana diberitakan pekan harimau sumatera warawiri permukiman penduduk desa singgersing kecamatan sultan daulat kota subulussalammasyarakat resah oleh kawanan harimau sumatera  panthera tigris sumatrae  yang berkeliaran permukiman penduduk areal perkebunan setempatterus terang terancam harimaunya malam turun kampong nasution salah warga desa singgersing serambinewscom rabu nasution selasa malam kawanan harimau masuk permukiman penduduk menerkam ternak sapi milik rama warga desa singgersingmeski memangsa habis tubuh punggung leher ternak sapi terluka parah akibat cakaran gigitan sang raja hutan kandang ternak milik rama persis rumahnya jalan nasionalmasuknya harimau kembali nekat menerkam ternak rumah masyarakat singgersing resahapalagi sebelumnya harimau juga masuk permukiman penduduk dikabarkan ekor kambing hilang harimau masuk meter rumah penduduk posisi harimau hanya belasan meter rumah penduduk teror harimau sumatera mereda subulussalam giliran desa bawan sasaran mahasantri aceh utara raih juara lomba vlog kasrem tu tinjau pemadaman karhutla nagan raya bener meriah gelar apel kesiapsiagaan bencana pasukan dikerahkan masuk kampung kawanan harimau sumatera terkam ekor kerbau wargabanda aceh kepala badan konservasi sumber daya alam bksda aceh sapto aji prabowo membenarkan laporan masuknya harimau sumatera kampung wargasejak rabu malam tim bksda resort wilayah aceh monitor desa patroli menenangkan warga sapto aji kamis kamis pagi sapto aji tim bksda resort pawang harimau patroli hutan desa kute keramil memantau keberadaan harimau tersebutmereka patroli hutan terima hasil patroli dihutan sapto ajibaca warga pasar riau dihebohkan munculnya harimau sumaterawarga desa kute keramil kecamatan linge isaq kabupaten aceh dikejutkan kehadiran kawanan harimau sumatera desa rabu warga menemukan ekor kerbau kondisi tubuh tercabik sore berdasarkan kesaksian sahrin warga kute keramil ekor kerbau miliknya dimakan harimau rabu induk anaknya induknya disembelih anak kerbau habis dimakan sahrin sahrin harimau ekor induk remaja warga bekas tapak harimau mencapai ekor sahrinwarga berharap terkait menangani secepatnya konflik satwa memakan korban baca harimau sumatera masuk pasar makan kambing sapto aji kali harimau turun perkampungan warga lokasi didatangi harimau keberadaan hutan sempit akkbat perambahan pembukaan lahan penyebab meningkatnya konflik satwa liar manusia acehkendati upaya penangan konflik meminimalisir konflik satwa liar manusia ditingkatkan meningkatkan pemahaman konservasi aparat penegak hukummisalnya kabar baiknya perdagangan kulit harimau dipersidangkan aceh harap pelaku hukuman setimpal sapto aji prabowo  baca tersisa jenis harimau dunia salah satunya indonesia tulis komentarmu tagar jernihberkomentar menangkan evoucher pemenangdapatkan informasi insight pilihan redaksi kompascomperiksa lengkapi data dirimudata dirimu verifikasi akun membutuhkan bantuan ditemukan aktivitas akunmusegera lengkapi data dirimu ikutan program jernihberkomentar penyebab harimau masuk permukiman mangsa ternak warga acehaceh utara kompascom kepala seksi konservasi wilayah i lhokseumawe badan konservasi sumber daya alam bkdsa aceh kamarudzaman harimau sumatera turun permukiman warga kecamatan langkahan aceh utara dipicu kerusakan hutan kabar harimau masuk permukiman perkebunan warga alih fungsi lahan penebangan hutan habitatnya terganggu turun permukiman penduduk kamarudzaman dihubungi sabtu baca duduk perkara petani kopi tewas diterkam harimau diduga perburuan habitat rusak perburuan rusa marak aceh mengakibatkan makanan harimau tercukupisehingga bertahan hidup harimau memangsa hewan ternak milik warga turun kampung makanannya kawasan hutan menipis rusa diburu harimau cari makanan permukiman warga memakan hewan ternak kamarudzaman menjaga kelestarian hutan pemerintah komunitas masyarakatsehingga harimau sumatera kawasan hutan turun permukiman diberitakan harimau turun permukiman warga desa leubok pusaka kecamatan langkahan aceh utaralima sapi milik petani mati dimangsa hewan dilindungi november baca jejak harimau sumatera ditemukan permukiman warga riautulis komentarmu tagar jernihberkomentar menangkan evoucher pemenangdapatkan informasi insight pilihan redaksi kompascomperiksa lengkapi data dirimudata dirimu verifikasi akun membutuhkan bantuan ditemukan aktivitas akunmusegera lengkapi data dirimu ikutan program jernihberkomentar"
 ```
 
 ## VI. Beberapa contoh analisis data yang dapat dilakukan dengan menggunakan web scraping
@@ -530,7 +528,7 @@ kata_teratas <- head(frekuensi_terurut, 10)
 kata_teratas
 #> teks
 #>    harimau      warga       desa permukiman   penduduk     ternak      bksda 
-#>         90         40         35         35         28         25         19 
+#>         90         41         35         35         29         26         19 
 #>       aceh      bawan   sumatera 
 #>         18         18         18
 
@@ -600,7 +598,7 @@ sentiment_scores <- sentiment(teks_bersih)
 # Print sentiment scores
 print(sentiment_scores)
 #>    element_id sentence_id word_count  sentiment
-#> 1:          1           1       1723 -0.1252739
+#> 1:          1           1       1731 -0.1249841
 ```
 
 Skor hasil analisis sentimen mencerminkan polaritas sentimen teks,
@@ -661,20 +659,20 @@ teks_suku_kata
 #> 5  penduduk           
 #> 6  ternak             
 #> 7  permukiman penduduk
-#> 8  ”                  
-#> 9  bksda              
-#> 10 masuk              
-#> 11 sumatera           
-#> 12 aceh               
-#> 13 bawan              
-#> 14 harimau sumatera   
-#> 15 kecamatan          
-#> 16 hutan              
-#> 17 desa bawan         
-#> 18 ekor               
-#> 19 jejak              
-#> 20 kecamatan sultan   
-#> ⋮  (1816 rows total)
+#> 8  bksda              
+#> 9  masuk              
+#> 10 sumatera           
+#> 11 aceh               
+#> 12 bawan              
+#> 13 harimau sumatera   
+#> 14 kecamatan          
+#> 15 hutan              
+#> 16 desa bawan         
+#> 17 ekor               
+#> 18 kecamatan sultan   
+#> 19 masuk permukiman   
+#> 20 sapi               
+#> ⋮  (1806 rows total)
 
 # Ekstraksi nama desa yang dicari yang terdapat pada teks pada website pertama
 # Memanggil pustaka stringdist

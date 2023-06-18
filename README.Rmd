@@ -108,9 +108,8 @@ Pilih versi gratis (RStudio Desktop) yang sesuai untuk sistem operasi Anda dan i
 3. Instal *library* atau *package* yang diperlukan:
 Web scraping dalam R umumnya membutuhkan beberapa paket. Buka R atau RStudio dan instal paket yang diperlukan dengan menjalankan perintah berikut:
 ```{r, echo=TRUE, warning=FALSE, message=FALSE}
-library(rvest)
-library(xml2)
-library(tidyverse)
+library(rvest) # Untuk web scraping
+library(tidyverse) # Untuk data cleaning
 ```
 Dengan demikian, Anda dapat mulai menulis dan menjalankan kode web scraping menggunakan paket yang telah diinstal
 
@@ -256,40 +255,42 @@ write.csv(web_scraping, "E:/myRpackages/Webscraping_tutorial/docs/web_scraping.c
 Dengan menggunakan model contoh di atas, Anda sekarang dapat melakukan web scraping pada beberapa halaman web, baik dari website yang sama maupun website yang berbeda. Setelah data terkumpul, Anda dapat melanjutkan dengan menganalisis data tersebut.
 
 ## V. Pembersihan data hasil web scraping
-Data yang dikumpulkan melalui web scraping perlu melalui proses pembersihan sebelum analisis lebih lanjut. Pembersihan ini melibatkan penghapusan karakter khusus seperti hashtag atau simbol yang tidak diinginkan, normalisasi teks seperti mengubah semua huruf menjadi huruf kecil yang konsisten atau mengembalikan kata-kata ke bentuk dasar, penghapusan data duplikat, validasi data, penghapusan spasi, dan penghapusan kata-kata umum yang tidak memberikan makna jika digunakan sendiri, seperti 'dan', 'atau', 'dari', 'ke', dan lainnya.
+Data yang dikumpulkan melalui web scraping perlu melalui proses pembersihan sebelum analisis lebih lanjut. Pembersihan ini melibatkan penghapusan karakter khusus seperti hashtag atau simbol yang tidak diinginkan, normalisasi teks seperti mengubah semua huruf menjadi huruf kecil yang konsisten atau mengembalikan kata-kata ke bentuk dasar, penghapusan data duplikat, validasi data, penghapusan spasi, dan penghapusan kata-kata umum yang tidak memberikan makna jika digunakan sendiri, seperti 'dan', 'atau', 'dari', 'ke', dan lainnya. Daftar *stopwords* untuk bahasa Indonesia dapat di download pada [link github ini](https://github.com/masdevid/ID-Stopwords)
 
 Tahapan selanjutnya adalah membersihkan data hasil web scraping, terutama pada bagian isi berita di mana informasi yang akan dianalisis terdapat.
 ```{r, warning=FALSE}
-# Memanggil library khusus untuk teks mining
-library(tm)
-library(corpus)
-
 # Memanggil contoh data yang akan dibersihkan yang merupakan gabungan dari beberapa isi berita
 teks_kotor <- paste(web_scraping$Berita[1], web_scraping$Berita[2], web_scraping$Berita[3], 
                     web_scraping$Berita[4], web_scraping$Berita[5]) 
 
-# Mengubah ke format COrpus untuk pembersihan
-teks_corpus <- Corpus(VectorSource(teks_kotor))
-
-# Merubah ke huruf kecil
-teks_corpus <- tm_map(teks_corpus, content_transformer(tolower))
+# Merubah semua teks menjadi huruf kecil
+teks_bersih_kecil <- tolower(teks_kotor)
 
 # Menghapus tanda baca
-teks_corpus <- tm_map(teks_corpus, removePunctuation)
+teks_bersih_tandabaca <- gsub("[[:punct:]]", "", teks_bersih_kecil)
 
 # Menghapus angka
-teks_corpus <- tm_map(teks_corpus, removeNumbers)
+teks_bersih_angka <- gsub("\\d+", "", teks_bersih_tandabaca)
+
+# Menghapus ekstra spasi
+teks_bersih_spasi <- trimws(teks_bersih_angka)
 
 # Menghapus stopWords
-# Memanggil stopwords dalam bahasa Indonesia (sumber: https://github.com/masdevid/ID-Stopwords)
+# Memanggil stopwords dalam bahasa Indonesia
+# download pada link [ini](https://github.com/masdevid/ID-Stopwords)
 stopwords_id <- readLines("docs/id.stopwords.02.01.2016.txt") 
-teks_corpus <- tm_map(teks_corpus, removeWords, stopwords_id)
 
-# Menghapus spasi
-teks_corpus <- tm_map(teks_corpus, stripWhitespace)
+# Merubah teks menjadi individual kata
+teks_bersih_vektor <- unlist(strsplit(teks_bersih_spasi, "\\s+"))
+
+# Menghapus stopwords dari barisan kata
+teks_bersih_stopwords <- teks_bersih_vektor[!teks_bersih_vektor %in% stopwords_id]
+
+# Menggabung kembali barisan kata menjadi kalimat dan paragrap
+teks_bersih <- paste(teks_bersih_stopwords, collapse = " ")
 
 # Melihat teks yang telah dibersihkan
-teks_bersih <- as.character(teks_corpus[[1]])
+teks_bersih
 ```
 ## VI. Beberapa contoh analisis data yang dapat dilakukan dengan menggunakan web scraping
 ### a. Frequensi kata
