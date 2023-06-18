@@ -312,14 +312,14 @@ kata_teratas
 kata_terbanyak <- as.data.frame(kata_teratas)
 ```
 Selanjutnya, kita dapat membuat visualisasi plot untuk melihat kata yang paling sering muncul dalam teks.
-```{r, out.width='80%', fig.align='center', fig.cap='Kata dengan frequensi paling banyak', echo=FALSE, warning=TRUE}
+```{r Grafik frekuensi kata, out.width='80%', fig.align='center', fig.cap='Kata dengan frequensi paling banyak', echo=TRUE, warning=TRUE}
 # Visualisasi data
 barplot(kata_terbanyak$Freq, names.arg = kata_terbanyak$teks, col="skyblue", las=2,
         main="Kata dengan frequensi terbanyak", ylab = "Frekuensi")
 ```
 ### b. Word cloud
 Anda juga dapat membuat word cloud atau awan kata untuk memvisualisasikan atau memperlihatkan frequensi kemunculan kata-kata dalam suatu teks dengan cara yang menarik dan mudah dipahami.
-```{r, out.width='60%', fig.align='center', fig.cap='Worcloud', echo=FALSE, warning=FALSE, message=FALSE}
+```{r Grafik awan kata, out.width='60%', fig.align='center', fig.cap='Worcloud', echo=TRUE, warning=FALSE, message=FALSE}
 # Memuat library yang diperlukan
 library(wordcloud)
 
@@ -329,7 +329,7 @@ wordcloud(kata_terbanyak$teks, kata_terbanyak$Freq, scale = c(5, 0.5), min.freq 
 ```
 ### c. Analisis sentimen
 Contoh analisis selanjutnya adalah analisis sentimen yang bertujuan untuk mengidentifikasi sentimen atau nada emosional yang dapat berupa sentimen positif, negatif, atau netral yang terungkap dalam teks yang telah di-scrape.
-```{r}
+```{r, echo=TRUE}
 # Memuat library yang diperlukan
 library(tidytext)
 library(sentimentr)
@@ -354,7 +354,7 @@ Selain itu, analisis sentimen tidak selalu sempurna dan dapat memiliki keterbata
 
 ### d. Analisis konten
 Analisis konten juga dapat dilakukan pada teks yang sudah di scraping yang bertujuan untuk memeriksa isi teks atau mengektrak informasi yang dibutuhkan. Contohnya informasi produk, harga, lokasi, ulasan, dan opini. Dalam konteks konservasi KEHATI, analisis konten bisa membantu dalam mengumpulkan data seperti lokasi terjadinya konflik manusia dan harimau sebagai bahan untuk mitigasi konflik. Sebagai contoh, kita akan melakukan ekstraksi lokasi dimana konflik terjadi.
-```{r, message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE, echo=TRUE}
 # Membuat kumpulan kata yang akan diekstrak
 list_desa <- c('bawan', 'kute keramil', 'leubok pusaka', 'bengkelang')
 

@@ -541,9 +541,15 @@ kata_terbanyak <- as.data.frame(kata_teratas)
 Selanjutnya, kita dapat membuat visualisasi plot untuk melihat kata yang
 paling sering muncul dalam teks.
 
+``` r
+# Visualisasi data
+barplot(kata_terbanyak$Freq, names.arg = kata_terbanyak$teks, col="skyblue", las=2,
+        main="Kata dengan frequensi terbanyak", ylab = "Frekuensi")
+```
+
 <div class="figure" style="text-align: center">
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" alt="Kata dengan frequensi paling banyak" width="80%" />
+<img src="man/figures/README-Grafik frekuensi kata-1.png" alt="Kata dengan frequensi paling banyak" width="80%" />
 <p class="caption">
 Kata dengan frequensi paling banyak
 </p>
@@ -556,9 +562,18 @@ Anda juga dapat membuat word cloud atau awan kata untuk
 memvisualisasikan atau memperlihatkan frequensi kemunculan kata-kata
 dalam suatu teks dengan cara yang menarik dan mudah dipahami.
 
+``` r
+# Memuat library yang diperlukan
+library(wordcloud)
+
+# Membuat word cloud
+wordcloud(kata_terbanyak$teks, kata_terbanyak$Freq, scale = c(5, 0.5), min.freq = 10, random.order = FALSE,
+          colors = brewer.pal(8, "Dark2"), rot.per = 0.35)
+```
+
 <div class="figure" style="text-align: center">
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" alt="Worcloud" width="60%" />
+<img src="man/figures/README-Grafik awan kata-1.png" alt="Worcloud" width="60%" />
 <p class="caption">
 Worcloud
 </p>
