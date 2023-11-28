@@ -47,7 +47,7 @@ Itulah beberapa contoh jenis analisis yang dapat dilakukan menggunakan data web 
 Pertanyaan yang sering muncul adalah apakah kegiatan web scraping legal atau tidak. Berdasarkan informasi terbaru dari [APIFYBlog](https://blog.apify.com/is-web-scraping-legal/#:~:text=can%20scrape%20everything.-,Myth%202%3A%20Web%20scrapers%20operate%20in%20a%20grey%20area%20of,not%20heavily%20regulated%2C%20that's%20true.), web scraping legal selama informasi yang diakses adalah informasi publik dan bukan informasi yang bersifat pribadi atau merupakan kekayaan intelektual. Secara analogi, web scraping bisa diibaratkan seperti mengambil foto, di mana semua boleh difoto kecuali dokumen rahasia atau lokasi-lokasi yang dilarang untuk difoto..
 
 ```{r, out.width='70%', fig.align='center', fig.cap='Mitos terkait web scraping', echo=FALSE, warning=TRUE}
-knitr::include_graphics('E:/myRpackages/Webscraping_tutorial/docs/Webscraping_legal.jpg')
+knitr::include_graphics('D:/myRpackage/Webscraping_tutorial/docs/Webscraping_legal.jpg')
 ```
 
 ## IV. Bagaimana melakukan web scrapping
@@ -92,7 +92,7 @@ SelectorGadget adalah salah satu ekstensi untuk web browser Chrome yang sangat b
 Dengan menggunakan SelectorGadget, Anda dapat dengan mudah mengetahui kode atau lokasi elemen-elemen yang ingin Anda scrape pada halaman web yang dituju, seperti contoh pada gambar berikut. 
 
 ```{r, out.width='100%', fig.align='center', fig.cap='Membedah website dengan SelectorGadget', echo=FALSE, warning=TRUE}
-knitr::include_graphics('E:/myRpackages/Webscraping_tutorial/docs/SelectorGadget_ss.png')
+knitr::include_graphics('D:/myRpackage/Webscraping_tutorial/docs/SelectorGadget_ss.png')
 ```
 
 #### c. Instal program R dan R studio serta library yang diperlukan untuk web craping
@@ -109,7 +109,7 @@ Pilih versi gratis (RStudio Desktop) yang sesuai untuk sistem operasi Anda dan i
 Web scraping dalam R umumnya membutuhkan beberapa paket. Buka R atau RStudio dan instal paket yang diperlukan dengan menjalankan perintah berikut:
 ```{r, echo=TRUE, warning=FALSE, message=FALSE}
 library(rvest) # Untuk web scraping
-library(tidyverse) # Untuk data cleaning
+library(magrittr) # Untuk pipe line
 ```
 Dengan demikian, Anda dapat mulai menulis dan menjalankan kode web scraping menggunakan paket yang telah diinstal
 
@@ -180,7 +180,7 @@ for (i in 1:nrow(tribun_scraping)) {
 tribun_scraping
 
 # Simpan dalam file csv
-write.csv(tribun_scraping, "E:/myRpackages/Webscraping_tutorial/docs/Tribun_scraping.csv")
+write.csv(tribun_scraping, "D:/myRpackage/Webscraping_tutorial/docs/Tribun_scraping.csv")
 ```
 
 Penting untuk dicatat bahwa meskipun penulisan kode pada umumnya sama untuk semua halaman web dalam satu situs, ada kemungkinan adanya variasi atau perubahan dalam struktur HTML pada beberapa halaman. Jika Anda menghadapi perbedaan tersebut, Anda mungkin perlu menyesuaikan kode Anda untuk menangani situasi tersebut secara khusus.
@@ -250,7 +250,7 @@ for (i in 1:nrow(web_scraping)) {
 web_scraping
 
 # Simpan dalam file csv
-write.csv(web_scraping, "E:/myRpackages/Webscraping_tutorial/docs/web_scraping.csv")
+write.csv(web_scraping, "D:/myRpackage/Webscraping_tutorial/docs/web_scraping.csv")
 ```
 Dengan menggunakan model contoh di atas, Anda sekarang dapat melakukan web scraping pada beberapa halaman web, baik dari website yang sama maupun website yang berbeda. Setelah data terkumpul, Anda dapat melanjutkan dengan menganalisis data tersebut.
 
