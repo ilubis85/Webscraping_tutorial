@@ -110,6 +110,7 @@ Web scraping dalam R umumnya membutuhkan beberapa paket. Buka R atau RStudio dan
 ```{r, echo=TRUE, warning=FALSE, message=FALSE}
 library(rvest) # Untuk web scraping
 library(magrittr) # Untuk pipe line
+library(httr)
 ```
 Dengan demikian, Anda dapat mulai menulis dan menjalankan kode web scraping menggunakan paket yang telah diinstal
 
@@ -117,22 +118,26 @@ Dengan demikian, Anda dapat mulai menulis dan menjalankan kode web scraping meng
 Dengan menggunakan *selectorGadget*, kita dapat mengetahui kode website yang dituju terkait lokasi **tanggal artikel terbit**, **judul artikel** dan **isi artikel** :
 ```{r, echo=TRUE, warning=FALSE}
 # Membaca alamat website
-url <- rvest::read_html("https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all")
+url <- "https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all"
+
+# Menyertakan user-agent yang menyerupai browser nyata
+page <- read_html(httr::GET(url,httr::add_headers(
+      "User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")))
 
 # Membaca tanggal terbit artikel
-tanggal <- url %>% # Membaca alamat website
+tanggal <- page %>% # Membaca alamat website
   rvest::html_node("time") %>% # Membaca kode tanggal
   rvest::html_text() # Mengubah ke dalam bentuk text
 tanggal
 
 # Membaca judul artikel
-judul <- url %>% # Membaca alamat website
+judul <- page %>% # Membaca alamat website
   rvest::html_node("#arttitle") %>% # Membaca kode judul artikel
   rvest::html_text() # Mengubah ke dalam format text
 judul
 
 # Membaca isi artikel
-berita <- url %>% # Membaca alamat website
+berita <- page %>% # Membaca alamat website
   rvest::html_nodes("p") %>% # Membaca kode isi berita artikel
   rvest::html_text() %>% # Mengubah ke dalam format text
   {gsub('[\r\n\t\"]', '',.)} # Menghilangkan karakter yang tidak perlu
@@ -156,24 +161,36 @@ urls <- c("https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-m
 tribun_scraping <- data.frame("Webpages" = urls, "Tanggal" = NA, "Judul" = NA, "Berita" = NA)
 tribun_scraping
 
-# Kemudian lakukan pengulangan (looping) untuk mengekstrak informasi yang diinginkan
+# User-agent seperti browser sungguhan
+ua <- "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
+# Ectract all
 for (i in 1:nrow(tribun_scraping)) {
+
+  # Membaca halaman dengan user-agent
+  page <- read_html(
+    GET(
+      tribun_scraping[i, "Webpages"],
+      add_headers("User-Agent" = ua)
+    )
+  )
+
   # Ekstraksi tanggal
-  tribun_scraping[i,"Tanggal"] <- rvest::read_html(tribun_scraping[i,"Webpages"]) %>% # Membaca website baris i
-    rvest::html_node("time") %>% # Membaca kode tanggal
-    rvest::html_text() # Mengubah ke dalam format text
-  
+  tribun_scraping[i, "Tanggal"] <- page %>%
+    html_node("time") %>%
+    html_text(trim = TRUE)
+
   # Ekstraksi judul artikel
-  tribun_scraping[i,"Judul"] <- rvest::read_html(tribun_scraping[i,"Webpages"]) %>% # Membaca website baris i
-    rvest::html_node("#arttitle") %>% # Membaca kode judul artikel
-    rvest::html_text() # Mengubah ke dalam format text
-  
+  tribun_scraping[i, "Judul"] <- page %>%
+    html_node("#arttitle") %>%
+    html_text(trim = TRUE)
+
   # Ekstraksi isi artikel
-  tribun_scraping[i,"Berita"] <- rvest::read_html(tribun_scraping[i,"Webpages"]) %>% # Membaca website baris i
-  rvest::html_nodes("p") %>% # Membaca kode isi berita artikel
-  rvest::html_text() %>%  # Mengubah ke dalam format text
-    {gsub('[\r\n\t\"]', '',.)} %>% # Bersihkan text
-    paste(collapse ="") # Gabung semua kalimat dalam satu paragraph
+  tribun_scraping[i, "Berita"] <- page %>%
+    html_nodes("p") %>%
+    html_text(trim = TRUE) %>%
+    gsub('[\r\n\t\"]', "", .) %>%         # Pembersihan teks
+    paste(collapse = " ")                # Menggabungkan paragraf
 }
 
 # Kemudian cek hasil
@@ -189,68 +206,91 @@ Penting untuk dicatat bahwa meskipun penulisan kode pada umumnya sama untuk semu
 Setiap website umumnya memiliki struktur HTML yang berbeda, sehingga untuk melakukan web scraping pada beberapa website yang berbeda, diperlukan adaptasi pada setiap website untuk mengidentifikasi lokasi kode informasi yang diinginkan menggunakan selektorGadget. Selanjutnya, informasi yang ingin diekstrak dari masing-masing website dapat dilakukan dengan menggunakan pengulangan atau looping yang serupa dengan langkah sebelumnya. Perbedaannya, untuk website yang berbeda, kita perlu menggunakan *alternatination* dengan **if** dan **else** seperti contoh berikut.
 
 ```{r, echo=TRUE}
+# User-agent seperti browser sungguhan
+ua <- "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+
 # Membuat list halaman web dari situs yang berbeda
-urls <- c("https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all",
-          "https://aceh.tribunnews.com/2020/10/05/harimau-berkeliaran-di-objek-wisata-kempra-dampak-tidak-adanya-kajian-lingkungan-spot-baru",
-          "https://aceh.tribunnews.com/2020/03/11/warga-pastikan-harimau-sumatera-yang-kembali-meneror-mangsa-ternak?page=all",
-          "https://regional.kompas.com/read/2018/11/15/16461841/masuk-ke-kampung-kawanan-harimau-sumatera-terkam-3-ekor-kerbau-warga?page=all",
-         "https://regional.kompas.com/read/2019/12/07/14385741/ternyata-ini-penyebab-harimau-masuk-ke-permukiman-dan-mangsa-ternak-warga?page=all")
+urls <- c(
+  "https://aceh.tribunnews.com/2020/03/11/teror-harimau-sumatera-belum-mereda-di-subulussalam-giliran-desa-bawan-jadi-sasaran?page=all",
+  "https://aceh.tribunnews.com/2020/10/05/harimau-berkeliaran-di-objek-wisata-kempra-dampak-tidak-adanya-kajian-lingkungan-spot-baru",
+  "https://aceh.tribunnews.com/2020/03/11/warga-pastikan-harimau-sumatera-yang-kembali-meneror-mangsa-ternak?page=all",
+  "https://regional.kompas.com/read/2018/11/15/16461841/masuk-ke-kampung-kawanan-harimau-sumatera-terkam-3-ekor-kerbau-warga?page=all",
+  "https://regional.kompas.com/read/2019/12/07/14385741/ternyata-ini-penyebab-harimau-masuk-ke-permukiman-dan-mangsa-ternak-warga?page=all"
+)
 
-# Membuat dataframe yang berisi nama media penerbit, alamat url, serta hasil webscraping (Saat ini hasilnya NA)
-web_scraping <- data.frame("Media" = c("Tribunnews", "Tribunnews", "Tribunnews", "Kompas", "Kompas"), 
-                           "Webpages" = urls, "Tanggal" = NA, "Judul" = NA, "Berita" = NA)
-web_scraping
+# Membuat dataframe
+web_scraping <- data.frame(
+  Media    = c("Tribunnews", "Tribunnews", "Tribunnews", "Kompas", "Kompas"),
+  Webpages = urls,
+  Tanggal  = NA,
+  Judul    = NA,
+  Berita   = NA
+)
 
-# Kemudian lakukan pengulangan (looping) untuk mengekstrak informasi yang diinginkan
-# dan gunakan if dan else untuk menyesuaikan kode pada website yang berbeda
+# Loop pengambilan data
 for (i in 1:nrow(web_scraping)) {
-  # Untuk Media Tribunnews, gunakan kode berikut
-  if(web_scraping$Media[i]=="Tribunnews") {
-    # Ekstraksi tanggal
-  web_scraping[i,"Tanggal"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
-    rvest::html_node("time") %>% # Membaca kode tanggal
-    rvest::html_text() # Mengubah ke dalam format text
-  
-  # Ekstraksi judul artikel
-  web_scraping[i,"Judul"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
-    rvest::html_node("#arttitle") %>% # Membaca kode judul artikel
-    rvest::html_text() # Mengubah ke dalam format text
-  
-  # Ekstraksi isi artikel
-  web_scraping[i,"Berita"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
-  rvest::html_nodes("p") %>% # Membaca kode isi berita artikel
-  rvest::html_text() %>%  # Mengubah ke dalam format text
-    {gsub('[\r\n\t\"]', '',.)} %>% # Bersihkan text
-    paste(collapse ="") # Gabung semua kalimat dalam satu paragraph
+
+  # Membaca halaman web dengan user-agent
+  page <- read_html(
+    GET(
+      web_scraping$Webpages[i],
+      add_headers("User-Agent" = ua)
+    )
+  )
+
+  # Untuk media Tribunnews
+  if (web_scraping$Media[i] == "Tribunnews") {
+
+    # Tanggal
+    web_scraping$Tanggal[i] <- page %>%
+      html_node("time") %>%
+      html_text(trim = TRUE)
+
+    # Judul
+    web_scraping$Judul[i] <- page %>%
+      html_node("#arttitle") %>%
+      html_text(trim = TRUE)
+
+    # Isi berita
+    web_scraping$Berita[i] <- page %>%
+      html_nodes("p") %>%
+      html_text(trim = TRUE) %>%
+      gsub('[\r\n\t\"]', "", .) %>%
+      paste(collapse = " ")
   }
-  # Untuk media kompas, gunakan kode berikut
-  else if(web_scraping$Media[i]=="Kompas"){
-    # Ekstraksi tanggal
-  web_scraping[i,"Tanggal"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
-    rvest::html_node(".read__time") %>% # Membaca kode tanggal
-    rvest::html_text() # Mengubah ke dalam format text
-  
-  # Ekstraksi judul artikel
-  web_scraping[i,"Judul"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
-    rvest::html_node(".read__title") %>% # Membaca kode judul artikel
-    rvest::html_text() # Mengubah ke dalam format text
-  
-  # Ekstraksi isi artikel
-  web_scraping[i,"Berita"] <- rvest::read_html(web_scraping[i,"Webpages"]) %>% # Membaca website baris i
-  rvest::html_nodes("p") %>% # Membaca kode isi berita artikel
-  rvest::html_text() %>%  # Mengubah ke dalam format text
-    {gsub('[\r\n\t\"]', '',.)} %>% # Bersihkan text
-    paste(collapse ="") # Gabung semua kalimat dalam satu paragraph
+
+  # Untuk media Kompas
+  else if (web_scraping$Media[i] == "Kompas") {
+
+    # Tanggal
+    web_scraping$Tanggal[i] <- page %>%
+      html_node(".read__time") %>%
+      html_text(trim = TRUE)
+
+    # Judul
+    web_scraping$Judul[i] <- page %>%
+      html_node(".read__title") %>%
+      html_text(trim = TRUE)
+
+    # Isi berita
+    web_scraping$Berita[i] <- page %>%
+      html_nodes("p") %>%
+      html_text(trim = TRUE) %>%
+      gsub('[\r\n\t\"]', "", .) %>%
+      paste(collapse = " ")
   }
-  # Jika bukan Tribun dan Kompas, stop!!
-  else { stop('Media bukan Tribun atau Kompas')}
+
+  # Jika bukan keduanya
+  else {
+    stop("Media bukan Tribun atau Kompas")
+  }
 }
 
-# Kemudian cek hasil
+# Lihat hasil
 web_scraping
 
-# Simpan dalam file csv
-write.csv(web_scraping, "D:/myRpackage/Webscraping_tutorial/docs/web_scraping.csv")
+# Menyimpan hasil
+write.csv(web_scraping, "D:/myRpackage/Webscraping_tutorial/docs/web_scraping.csv", row.names = FALSE)
 ```
 Dengan menggunakan model contoh di atas, Anda sekarang dapat melakukan web scraping pada beberapa halaman web, baik dari website yang sama maupun website yang berbeda. Setelah data terkumpul, Anda dapat melanjutkan dengan menganalisis data tersebut.
 
@@ -259,86 +299,109 @@ Data yang dikumpulkan melalui web scraping perlu melalui proses pembersihan sebe
 
 Tahapan selanjutnya adalah membersihkan data hasil web scraping, terutama pada bagian isi berita di mana informasi yang akan dianalisis terdapat.
 ```{r, warning=FALSE}
-# Memanggil contoh data yang akan dibersihkan yang merupakan gabungan dari beberapa isi berita
-teks_kotor <- paste(web_scraping$Berita[1], web_scraping$Berita[2], web_scraping$Berita[3], 
-                    web_scraping$Berita[4], web_scraping$Berita[5]) 
+# Menggabungkan isi berita (otomatis aman meskipun ada NA)
+teks_kotor <- paste(web_scraping$Berita, collapse = " ")
 
-# Merubah semua teks menjadi huruf kecil
-teks_bersih_kecil <- tolower(teks_kotor)
+# Mengubah ke huruf kecil
+teks_bersih <- tolower(teks_kotor)
 
 # Menghapus tanda baca
-teks_bersih_tandabaca <- gsub("[[:punct:]]", "", teks_bersih_kecil)
+teks_bersih <- gsub("[[:punct:]]", " ", teks_bersih)
 
 # Menghapus angka
-teks_bersih_angka <- gsub("\\d+", "", teks_bersih_tandabaca)
+teks_bersih <- gsub("\\d+", " ", teks_bersih)
 
-# Menghapus ekstra spasi
-teks_bersih_spasi <- trimws(teks_bersih_angka)
+# Menghapus spasi berlebih
+teks_bersih <- gsub("\\s+", " ", teks_bersih)
+teks_bersih <- trimws(teks_bersih)
 
-# Menghapus stopWords
-# Memanggil stopwords dalam bahasa Indonesia
-# download pada link [ini](https://github.com/masdevid/ID-Stopwords)
-stopwords_id <- readLines("docs/id.stopwords.02.01.2016.txt") 
+# Memanggil stopwords Indonesia
+stopwords_id <- readLines("docs/id.stopwords.02.01.2016.txt", warn = FALSE)
 
-# Merubah teks menjadi individual kata
-teks_bersih_vektor <- unlist(strsplit(teks_bersih_spasi, "\\s+"))
+# Memisahkan teks menjadi vektor kata
+kata <- unlist(strsplit(teks_bersih, "\\s+"))
 
-# Menghapus stopwords dari barisan kata
-teks_bersih_stopwords <- teks_bersih_vektor[!teks_bersih_vektor %in% stopwords_id]
+# Menghapus stopwords
+kata_bersih <- kata[!kata %in% stopwords_id]
 
-# Menggabung kembali barisan kata menjadi kalimat dan paragrap
-teks_bersih <- paste(teks_bersih_stopwords, collapse = " ")
+# Menggabungkan kembali menjadi teks panjang
+teks_bersih <- paste(kata_bersih, collapse = " ")
 
-# Melihat teks yang telah dibersihkan
+# Hasil akhir
 teks_bersih
 ```
 ## VI. Beberapa contoh analisis data yang dapat dilakukan dengan menggunakan web scraping
 ### a. Frequensi kata
 Dari data yang sudah bersih, kita akan menghitung seberapa sering suatu kata muncul di dalam teks tersebut.
 ```{r}
-# Memisahkan teks menjadi kata-kata individu
-teks <- unlist(strsplit(teks_bersih, " "))
+# Memisahkan teks menjadi vektor kata yang valid
+teks <- unlist(strsplit(teks_bersih, "\\s+"))
 
-# Menghitung frekuensi setiap kata
+# Menghapus kata kosong (jika ada)
+teks <- teks[nchar(teks) > 0]
+
+# Menghitung frekuensi
 frekuensi_kata <- table(teks)
 
-# Mengurutkan frekuensi kata secara menurun
+# Mengurutkan berdasarkan frekuensi menurun
 frekuensi_terurut <- sort(frekuensi_kata, decreasing = TRUE)
 
-# Menampilkan 10 kata paling sering muncul
+# Menampilkan 10 kata paling sering
 kata_teratas <- head(frekuensi_terurut, 10)
 kata_teratas
 
-# Konversi ke format dataframe
+# Konversi ke dataframe
 kata_terbanyak <- as.data.frame(kata_teratas)
+colnames(kata_terbanyak) <- c("Kata", "Frekuensi")
+
+kata_terbanyak
 ```
 Selanjutnya, kita dapat membuat visualisasi plot untuk melihat kata yang paling sering muncul dalam teks.
 ```{r Grafik frekuensi kata, out.width='80%', fig.align='center', fig.cap='Kata dengan frequensi paling banyak', echo=TRUE, warning=TRUE}
-# Visualisasi data
-barplot(kata_terbanyak$Freq, names.arg = kata_terbanyak$teks, col="skyblue", las=2,
-        main="Kata dengan frequensi terbanyak", ylab = "Frekuensi")
+# Visualisasi 10 kata dengan frekuensi tertinggi
+barplot(
+  kata_terbanyak$Frekuensi,
+  names.arg = kata_terbanyak$Kata,
+  col = "skyblue",
+  las = 2,                     # Rotasi label agar tegak
+  cex.names = 0.8,             # Ukuran label agar muat
+  main = "Kata dengan Frekuensi Tertinggi",
+  ylab = "Frekuensi",
+  xlab = "Kata"
+)
 ```
 ### b. Word cloud
 Anda juga dapat membuat word cloud atau awan kata untuk memvisualisasikan atau memperlihatkan frequensi kemunculan kata-kata dalam suatu teks dengan cara yang menarik dan mudah dipahami.
 ```{r Grafik awan kata, out.width='60%', fig.align='center', fig.cap='Worcloud', echo=TRUE, warning=FALSE, message=FALSE}
 # Memuat library yang diperlukan
 library(wordcloud)
+library(RColorBrewer)
 
 # Membuat word cloud
-wordcloud(kata_terbanyak$teks, kata_terbanyak$Freq, scale = c(5, 0.5), min.freq = 10, random.order = FALSE,
-          colors = brewer.pal(8, "Dark2"), rot.per = 0.35)
+wordcloud(
+  words = kata_terbanyak$Kata,
+  freq = kata_terbanyak$Frekuensi,
+  scale = c(5, 0.5),
+  min.freq = 1,
+  max.words = 200,
+  random.order = FALSE,
+  colors = brewer.pal(8, "Dark2"),
+  rot.per = 0.35
+)
 ```
 ### c. Analisis sentimen
 Contoh analisis selanjutnya adalah analisis sentimen yang bertujuan untuk mengidentifikasi sentimen atau nada emosional yang dapat berupa sentimen positif, negatif, atau netral yang terungkap dalam teks yang telah di-scrape.
 ```{r, echo=TRUE}
-# Memuat library yang diperlukan
-library(tidytext)
+# Memuat library
 library(sentimentr)
 
-# Analysis sentiment
-sentiment_scores <- sentiment(teks_bersih)
+# Memecah teks menjadi kalimat
+teks_kalimat <- get_sentences(teks_bersih)
 
-# Print sentiment scores
+# Analisis sentimen
+sentiment_scores <- sentiment(teks_kalimat)
+
+# Menampilkan hasil
 print(sentiment_scores)
 ```
 Skor hasil analisis sentimen mencerminkan polaritas sentimen teks, menunjukkan apakah teks memiliki sentimen positif atau negatif. Skor tersebut umumnya berupa nilai numerik yang berkisar antara nilai negatif dan nilai positif. Berikut ini interpretasi umum skor sentimen:
@@ -355,29 +418,33 @@ Selain itu, analisis sentimen tidak selalu sempurna dan dapat memiliki keterbata
 
 ### d. Analisis konten
 Analisis konten juga dapat dilakukan pada teks yang sudah di scraping yang bertujuan untuk memeriksa isi teks atau mengektrak informasi yang dibutuhkan. Contohnya informasi produk, harga, lokasi, ulasan, dan opini. Dalam konteks konservasi KEHATI, analisis konten bisa membantu dalam mengumpulkan data seperti lokasi terjadinya konflik manusia dan harimau sebagai bahan untuk mitigasi konflik. Sebagai contoh, kita akan melakukan ekstraksi lokasi dimana konflik terjadi.
+
+Pertama kali kita perlu membuat dataframe yang berisi dua suku kata dari konten berita yang diekstrak
 ```{r, message=FALSE, warning=FALSE, echo=TRUE}
-# Membuat kumpulan kata yang akan diekstrak
+library(dplyr)
+library(tidyr)
+library(tidytext)
+library(stringdist)
+
+# Konversi teks menjadi data frame
+df <- data.frame(text = teks_bersih[1])
+
+# Tokenisasi menjadi n-gram 1–2
+teks_suku_kata <- df %>% 
+  unnest_tokens(term, text, token = "ngrams", n = 2) %>% 
+  distinct()
+
+head(teks_suku_kata, 10)
+```
+Setelah itu, kita perlu membuat keywords yang berisi nama desa yang ingin dicari pada teks. Lalu mencari keywords yang dibuat pada list data yang berisi dua suku kata sebelumnya
+```{r, message=FALSE, warning=FALSE, echo=TRUE}
+# Ekstraksi nama desa
 list_desa <- c('bawan', 'kute keramil', 'leubok pusaka', 'bengkelang')
 
-# Merubah struktur teks menjadi beberapa suku kata atau urutan kata
-teks_suku_kata <- teks_bersih[1] %>% # Pilih teks dari website 1 yang sudah bersih
-  corpus::term_stats(ngrams = 1:2) %>% # Membuat list potensi suku kata
-  dplyr::select("term") # Ekstrak kolom term saja
+desa_teks <- tidyr::crossing(teks_suku_kata, list_desa) %>% 
+  mutate(kesamaan = stringsim(term, list_desa)) %>% 
+  filter(kesamaan >= 0.8)
 
-# Cek hasil
-teks_suku_kata
-
-# Ekstraksi nama desa yang dicari yang terdapat pada teks pada website pertama
-# Memanggil pustaka stringdist
-library(stringdist)
-desa_teks <- tidyr::crossing(teks_suku_kata, list_desa) %>% #
-  as.data.frame() %>% 
-  # Hitung kesamaan kata (similarity)
-  dplyr::mutate('kesamaan' = stringdist::stringsim(term, list_desa)) %>% 
-  # Filter kata yang memiliki tingkat kesamaan tinggi
-  dplyr::filter(kesamaan >= 0.8)
-
-# Tampilkan hasil
 desa_teks
 ```
 Beberapa contoh di atas tentunya merupakan contoh sederhana karena untuk mendapatkan informasi yang lebih terperinci dan akurat dari artikel yang tidak terstruktur, diperlukan analisis dan proses yang lebih kompleks. Beragam tantangan juga muncul, seperti ketidakkonsistenan unit (cth: seribu, 1000, 1K), kesalahan penulisan nama tempat oleh penulis artikel (Tapaktuan menjadi Tapak tuan), dan gangguan dari tautan-tautan yang terekam saat web-scraping.
